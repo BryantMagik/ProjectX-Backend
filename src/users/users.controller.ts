@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/CreateUser.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Role_User } from '@prisma/client';
 
 @Auth(Role_User.ADMIN)
+@ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
