@@ -6,9 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  
+
   app.setGlobalPrefix('api/v1');
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,7 +17,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors()
-  
+
   const config = new DocumentBuilder()
     .setTitle('Jiru API Documentation')
     .setDescription(' The Jiru API Documentation for the Jiru App.')
@@ -25,9 +25,12 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, document);
-
-  await app.listen(3000);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      baseUrl: 'api/v1',
+    },
+  });
+  await app.listen(process.env.PORT || 3000);
 
 }
 bootstrap();
