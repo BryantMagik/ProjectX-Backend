@@ -5,7 +5,7 @@ import { AuthService } from './auth.service'
 import { ApiTags } from '@nestjs/swagger'
 import { Role_User } from '@prisma/client'
 import { Auth } from './decorators/auth.decorator'
-import { ActiveUser } from 'src/users/decorators/active-user.decorator'
+import { ActiveUser } from '../users/decorators/active-user.decorator'
 import { UserActiveInterface } from './interface/user-active.interface'
 
 @ApiTags('auth')
