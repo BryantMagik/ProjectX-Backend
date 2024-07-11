@@ -22,15 +22,12 @@ async function bootstrap() {
     .setTitle('Jiru API Documentation')
     .setDescription(' The Jiru API Documentation for the Jiru App.')
     .setVersion('1.5')
-    .build();
+    .addBearerAuth()
+    .build()
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, document, {
-    swaggerOptions: {
-      baseUrl: 'api/v1',
-    },
-  });
-  await app.listen(process.env.PORT || 3000);
+  SwaggerModule.setup('api/docs', app, document);
 
+  await app.listen(parseInt(process.env.PORT) || 3000);
 }
 bootstrap();
