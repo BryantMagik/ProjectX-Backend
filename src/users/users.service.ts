@@ -38,7 +38,6 @@ export class UsersService {
         })
     }
 
-
     async deleteUserById(id: string) {
         const findUser = await this.getUserById(id)
         if (!findUser) throw new BadRequestException('Usuario no encontrado')
