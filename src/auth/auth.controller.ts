@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Req } from '@nestjs/common'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { AuthService } from './auth.service'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Role_User } from '@prisma/client'
 import { Auth } from './decorators/auth.decorator'
 import { ActiveUser } from '../users/decorators/active-user.decorator'
@@ -25,9 +25,11 @@ export class AuthController {
         return this.authService.register(registerDto);
     }
     
+    @ApiBearerAuth()
     @Get('profile')
     @Auth(Role_User.USER)
     profile(@ActiveUser() user: UserActiveInterface) {
+        console.log(user)
         return this.authService.profile(user)
     }
 
