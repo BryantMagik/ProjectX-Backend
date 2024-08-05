@@ -44,13 +44,14 @@ export class AuthService {
 
         if (!isPasswordValid) throw new UnauthorizedException('Datos incorrectos')
 
-        const payload = { email: user.email, role: user.role }
+        const payload = { email: user.email, role: user.role, id: user.id}
 
         const token = await this.jwtService.signAsync(payload)
 
         return {
             token,
             email,
+            id: user.id
         }
     }
 

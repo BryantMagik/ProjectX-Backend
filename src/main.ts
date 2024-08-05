@@ -16,8 +16,11 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.enableCors()
-
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    methods: 'GET, POST, PUT, DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+  })
   setupSwagger(app);
 
   await app.listen(parseInt(process.env.PORT) || 3000);
