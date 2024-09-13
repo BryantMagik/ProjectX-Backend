@@ -23,6 +23,7 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   UserProjects Project[] @relation("AuthorProject")
+  UserTaks     Taks[]    @relation("AuthorTask")
 }
 
 enum Role_User {
@@ -41,6 +42,7 @@ model Project {
   updatedAt   DateTime       @updatedAt
   userId      String
   user        User           @relation("AuthorProject", fields: [userId], references: [id])
+  taks        Taks[]         @relation("id")
 }
 
 enum Project_Type {
@@ -51,4 +53,41 @@ enum Project_Status {
   ONGOING
   ONWAIT
   COMPLETED
+}
+
+model Taks {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  sumary      String
+  description String
+  priority    Task_priority
+  task_type   Task_type
+  status      Task_status
+  project_id  String
+  project     Project       @relation("id", fields: [project_id], references: [id])
+  user_id     String
+  user        User          @relation("AuthorTask", fields: [user_id], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum Task_priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Task_type {
+  BUG
+  FEATURE_REQUEST
+}
+
+enum Task_status {
+  PENDING
+  ONGOING
+  COMPLETED
+}
+
+model subtask {
+  id String @id @default(cuid())
 }

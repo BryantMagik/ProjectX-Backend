@@ -44,5 +44,4 @@ export class UsersController {
     deleteUserById(@Param('id') id: string) {
         return this.userService.deleteUserById(id);
     }
-
 }
