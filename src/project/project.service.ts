@@ -11,11 +11,11 @@ export class ProjectService {
     ) { }
 
     async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
-        const userId = user.id;
+        const userId = user.id
         return await this.prisma.project.create({
             data: {
                 ...projectDto,
-                user: {
+                author: {
                     connect: { id: userId },
                 },
             },
@@ -23,7 +23,15 @@ export class ProjectService {
     }
 
     getProjects() {
-        return this.prisma.project.findMany()
+        return this.prisma.project.findMany(
+            {
+                include : {
+                    author: true,
+                    participants: true,
+                    taks: true, 
+                }
+            }
+        )
     }
 
     getProjectById(id: string) {
@@ -31,6 +39,11 @@ export class ProjectService {
         return this.prisma.project.findUnique({
             where: {
                 id: id
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
@@ -40,6 +53,11 @@ export class ProjectService {
         return this.prisma.project.findUnique({
             where: {
                 code: code
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
@@ -49,6 +67,11 @@ export class ProjectService {
         return this.prisma.project.findFirst({
             where: {
                 name: name
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
