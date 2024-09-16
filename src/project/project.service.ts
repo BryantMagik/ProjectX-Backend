@@ -1,26 +1,37 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UsersService } from 'src/users/users.service';
+import { ProjectDto } from './dto/CreateProject.dto';
 
 @Injectable()
 export class ProjectService {
     constructor(
-        private readonly usersService: UsersService,
-        private prisma: PrismaService
+        private readonly prisma: PrismaService,
     ) { }
 
-    async createProject(data: Prisma.ProjectCreateInput) {
-
+    async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
+        const userId = user.id
         return await this.prisma.project.create({
             data: {
-                ...data,
-            }
+                ...projectDto,
+                author: {
+                    connect: { id: userId },
+                },
+            },
         })
     }
 
     getProjects() {
-        return this.prisma.project.findMany()
+        return this.prisma.project.findMany(
+            {
+                include : {
+                    author: true,
+                    participants: true,
+                    taks: true, 
+                }
+            }
+        )
     }
 
     getProjectById(id: string) {
@@ -28,6 +39,11 @@ export class ProjectService {
         return this.prisma.project.findUnique({
             where: {
                 id: id
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
@@ -37,6 +53,11 @@ export class ProjectService {
         return this.prisma.project.findUnique({
             where: {
                 code: code
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
@@ -46,17 +67,21 @@ export class ProjectService {
         return this.prisma.project.findFirst({
             where: {
                 name: name
+            },
+            include : {
+                author: true,
+                participants: true,
+                taks: true, 
             }
         })
     }
 
-    async deleteProjectById(id: string, userId: string) {
-
+    async deleteProjectById(id: string, user: UserActiveInterface) {
         const project = await this.getProjectById(id)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-        if (project.userId !== userId) {
-            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+        if (project.userId !== user.id) {
+            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', project.userId);
         }
         return this.prisma.project.delete({
             where: {
@@ -77,7 +102,4 @@ export class ProjectService {
             }
         })
     }
-
-
-
 }
