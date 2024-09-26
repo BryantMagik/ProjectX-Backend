@@ -22,10 +22,5 @@ export class ProjectDto {
     @IsNotEmpty()
     status: Project_Status
 
-    // @IsString()
-    // @IsNotEmpty()
-    // userId: string;
 
-    // @IsNotEmpty()
-    // user: User;
 }
