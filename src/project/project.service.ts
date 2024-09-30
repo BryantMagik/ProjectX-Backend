@@ -48,6 +48,33 @@ export class ProjectService {
         )
     }
 
+    async getProjectByIdWhereId(user: UserActiveInterface) {
+        return await this.prisma.project.findMany(
+            {
+                where: {
+                    OR: [
+                        {
+                            userId: user.id
+                        },
+                        {
+                            participants: {
+                                some: {
+                                    id: user.id
+                                }
+                            }
+                        }
+                    ]
+
+                },
+                include: {
+                    author: true,
+                    participants: true,
+                    taks: true,
+                }
+            }
+        )
+    }
+
     async getProjectById(id: string) {
         if (!id) throw new Error('Id no encontrado')
         return await this.prisma.project.findUnique({

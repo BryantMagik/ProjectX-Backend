@@ -50,6 +50,9 @@ model Project {
 
 enum Project_Type {
   SOFTWARE
+  EXTERNAL
+  RESEARCH
+  INTERNAL
 }
 
 enum Project_Status {

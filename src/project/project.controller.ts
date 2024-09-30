@@ -35,6 +35,13 @@ export class ProjectController {
         return project
     }
 
+    @Get('user/projects')
+    async getProjectByIdWhereId(@ActiveUser() user: UserActiveInterface) {
+        const projects = await this.projectService.getProjectByIdWhereId(user)
+        return projects
+
+    }
+
     @Get(':code')
     async getProjectByCode(@Param('code') code: string) {
         const project = await this.projectService.getProjectByCode(code);
