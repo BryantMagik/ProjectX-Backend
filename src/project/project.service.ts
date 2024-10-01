@@ -26,9 +26,18 @@ export class ProjectService {
             throw new BadRequestException('Ya existe un proyecto con este nombre o código')
         }
 
+        const { code, name, description, type, status, participants } = projectDto
+
         return await this.prisma.project.create({
             data: {
-                ...projectDto,
+                code,
+                name,
+                description,
+                type,
+                status,
+                participants: {
+                    connect: participants.map(userId => ({ id: userId })),
+                },
                 author: {
                     connect: { id: userId },
                 },
