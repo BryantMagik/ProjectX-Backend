@@ -25,7 +25,8 @@ model User {
   createdTasks        Task[]    @relation("CreatedTasks")
   assignedTasks       Task[]    @relation("AssignedTasks")
   participantProjects Project[] @relation("ProjectParticipants")
-  authoredProjects    Project[]  @relation("ProjectAuthors") 
+  authoredProjects    Project[]  @relation("ProjectAuthors")
+  comments            Comment[] @relation 
 }
 
 
@@ -78,6 +79,7 @@ model Task {
   users       User[]        @relation("AssignedTasks")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  comments    Comment[]     @relation
 }
 
 enum Task_priority {
@@ -99,4 +101,14 @@ enum Task_status {
 
 model subtask {
   id String @id @default(cuid())
+}
+
+model Comment {
+  id          String        @id @default(cuid())
+  body        String
+  date        DateTime @default(now())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id]) 
+  authorId    String   
+  author      User     @relation(fields: [authorId], references: [id])
 }
