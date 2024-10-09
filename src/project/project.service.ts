@@ -12,7 +12,10 @@ export class ProjectService {
 
     async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
         const userId = user.id
+        if(!userId){
+            throw new BadRequestException('No existe ningun usuario con sesión iniciada')
 
+        }
         const existingProject = await this.prisma.project.findFirst({
             where: {
                 OR: [
@@ -49,9 +52,9 @@ export class ProjectService {
         return await this.prisma.project.findMany(
             {
                 include: {
-                    author: true,
                     participants: true,
-                    taks: true,
+                    tasks: true,
+                    author: true
                 }
             }
         )
@@ -63,7 +66,7 @@ export class ProjectService {
                 where: {
                     OR: [
                         {
-                            userId: user.id
+                            authorId:user.id
                         },
                         {
                             participants: {
@@ -76,9 +79,9 @@ export class ProjectService {
 
                 },
                 include: {
-                    author: true,
                     participants: true,
-                    taks: true,
+                    tasks: true,
+                    author: true
                 }
             }
         )
@@ -91,9 +94,9 @@ export class ProjectService {
                 id: id
             },
             include: {
-                author: true,
                 participants: true,
-                taks: true,
+                tasks: true,
+                author: true
             }
         })
     }
@@ -105,9 +108,9 @@ export class ProjectService {
                 code: code
             },
             include: {
-                author: true,
                 participants: true,
-                taks: true,
+                tasks: true,
+                author: true
             }
         })
     }
@@ -119,9 +122,9 @@ export class ProjectService {
                 name: name
             },
             include: {
-                author: true,
                 participants: true,
-                taks: true,
+                tasks: true,
+                author: true,
             }
         })
     }
@@ -130,22 +133,24 @@ export class ProjectService {
         const project = await this.getProjectById(id)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-        if (project.userId !== user.id) {
-            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', project.userId);
-        }
+            if (project.authorId !== user.id) {
+                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+            }
+        
         return this.prisma.project.delete({
             where: {
                 id: id
             }
         })
     }
+
     async deleteProjectByCode(code: string, user: UserActiveInterface) {
         const project = await this.getProjectByCode(code)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-        if (project.userId !== user.id) {
-            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', project.userId);
-        }
+            if (project.authorId !== user.id) {
+                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+            }
         return this.prisma.project.delete({
             where: {
                 code: code

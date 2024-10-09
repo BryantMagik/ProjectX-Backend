@@ -22,11 +22,13 @@ model User {
   role                Role_User @default(USER)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
-  authoredProjects    Project[] @relation("AuthorProject")
-  createdTasks        Taks[]    @relation("CreatedTasks")
-  assignedTasks       Taks[]    @relation("AssignedTasks")
+  createdTasks        Task[]    @relation("CreatedTasks")
+  assignedTasks       Task[]    @relation("AssignedTasks")
   participantProjects Project[] @relation("ProjectParticipants")
+  authoredProjects    Project[]  @relation("ProjectAuthors") 
 }
+
+
 
 enum Role_User {
   USER
@@ -42,9 +44,9 @@ model Project {
   status       Project_Status
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  userId       String
-  author       User           @relation("AuthorProject", fields: [userId], references: [id])
-  taks         Taks[]         @relation("ProjectTasks")
+  authorId     String         
+  author       User           @relation("ProjectAuthors", fields: [authorId], references: [id])
+  tasks        Task[]         @relation("ProjectTasks")
   participants User[]         @relation("ProjectParticipants")
 }
 
@@ -61,10 +63,10 @@ enum Project_Status {
   COMPLETED
 }
 
-model Taks {
+model Task {
   id          String        @id @default(cuid())
   code        String        @unique
-  sumary      String
+  summary     String         
   description String
   priority    Task_priority
   task_type   Task_type

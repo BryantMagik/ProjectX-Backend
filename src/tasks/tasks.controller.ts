@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { TasksService } from './tasks.service';
-import { UsersService } from 'src/users/users.service';
 import { TaskDto } from './dto/CreateTask.dto';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';

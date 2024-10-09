@@ -9,7 +9,7 @@ export class TaskDto {
 
     @IsString()
     @IsNotEmpty()
-    sumary: string
+    summary: string
 
     @IsString()
     @IsNotEmpty()

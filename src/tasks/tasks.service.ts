@@ -28,11 +28,11 @@ export class TasksService {
 
         if (!dbUser) throw new Error('Usuario no encontrado en la DB')
 
-        await this.prisma.taks.create({
+        await this.prisma.task.create({
             data: {
                 projectId: projectId,
                 code: taskDto.code,
-                sumary: taskDto.sumary,
+                summary: taskDto.summary,
                 description: taskDto.description,
                 priority: taskDto.priority,
                 task_type: taskDto.task_type,
@@ -43,7 +43,7 @@ export class TasksService {
     }
 
     async getTasks() {
-        return this.prisma.taks.findMany({
+        return this.prisma.task.findMany({
             include: {
                 project: true,
                 creator: true,
@@ -54,7 +54,7 @@ export class TasksService {
 
     async getTasksById(id: string) {
         if (!id) throw new Error('Id no encontrada')
-        return await this.prisma.taks.findUnique({
+        return await this.prisma.task.findUnique({
             where: {
                 id: id
             },
@@ -69,7 +69,7 @@ export class TasksService {
     async getTaskByCode(code: string) {
         if (!code) throw new Error('Code no encontrado')
 
-        return await this.prisma.taks.findUnique({
+        return await this.prisma.task.findUnique({
             where: {
                 code: code
             },
@@ -87,7 +87,7 @@ export class TasksService {
         if (task.creatorId !== user.id) {
             throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', task.creatorId);
         }
-        await this.prisma.taks.delete({
+        await this.prisma.task.delete({
             where: { code: code }
         })
     }
@@ -95,7 +95,7 @@ export class TasksService {
     async deleteTaskById(code: string, user: UserActiveInterface) {
         if (!code) throw new Error('Nombre no encontrado')
 
-        return await this.prisma.taks.findFirst({
+        return await this.prisma.task.findFirst({
             where: {
                 code: code
             },
