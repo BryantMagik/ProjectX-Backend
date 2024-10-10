@@ -18,8 +18,8 @@ export class TasksController {
 
 
     @UsePipes(ValidationPipe)
-    @Post()
-    createTask(@Body() taskDto: TaskDto, @ActiveUser() user: UserActiveInterface, projectId: string) {
+    @Post(':projectId')
+    createTask(@Param('projectId') projectId: string, @Body() taskDto: TaskDto, @ActiveUser() user: UserActiveInterface) {
         return this.tasksService.createTask(projectId, taskDto, user)
     }
 
