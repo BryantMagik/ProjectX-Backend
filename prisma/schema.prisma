@@ -91,6 +91,11 @@ enum Task_priority {
 enum Task_type {
   BUG
   FEATURE_REQUEST
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
 }
 
 enum Task_status {
