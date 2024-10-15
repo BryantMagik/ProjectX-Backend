@@ -9,7 +9,4 @@ export class CreateCommentDto {
   @IsNotEmpty()
   taskId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  authorId: string;
 }
