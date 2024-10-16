@@ -1,4 +1,4 @@
-import { Controller,Body,Post,Patch,Param,Get } from '@nestjs/common';
+import { Controller,Body,Post,Patch,Param,Get,Delete } from '@nestjs/common';
 import { CreateCommentDto } from './dto/CreateComment.dto';
 import { CommentsService } from './comments.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -36,6 +36,11 @@ export class CommentsController {
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.commentsService.findOne(id);
+    }
+
+    @Delete(':id')
+    async deleteCommentById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
+        return this.commentsService.deleteCommentById(id, user);
     }
 
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCommentDto } from './dto/CreateComment.dto';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
@@ -46,6 +46,25 @@ export class CommentsService {
           },
         });
     }
+
+    async deleteCommentById(id: string, user: UserActiveInterface) {
+      const userId = user.id
+      const comment = await this.prisma.comment.findUnique({
+          where: { id },
+      });
+
+      if (!comment) {
+          throw new ForbiddenException('Comentario no encontrado');
+      }
+
+      if (comment.authorId !== userId) {
+          throw new ForbiddenException('No tienes permiso para eliminar este comentario');
+      }
+
+      return this.prisma.comment.delete({
+          where: { id },
+      });
+  }
 
 
 }
