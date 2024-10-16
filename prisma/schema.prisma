@@ -26,7 +26,8 @@ model User {
   assignedTasks       Task[]    @relation("AssignedTasks")
   participantProjects Project[] @relation("ProjectParticipants")
   authoredProjects    Project[]  @relation("ProjectAuthors")
-  comments            Comment[] @relation 
+  comments            Comment[] @relation
+  issues              Issue[]       @relation 
 }
 
 
@@ -49,6 +50,7 @@ model Project {
   author       User           @relation("ProjectAuthors", fields: [authorId], references: [id])
   tasks        Task[]         @relation("ProjectTasks")
   participants User[]         @relation("ProjectParticipants")
+  issues      Issue[]       @relation
 }
 
 enum Project_Type {
@@ -112,8 +114,36 @@ model Comment {
   id          String        @id @default(cuid())
   body        String
   date        DateTime @default(now())
+  updatedAt   DateTime      @updatedAt
   taskId      String
   task        Task     @relation(fields: [taskId], references: [id]) 
   authorId    String   
   author      User     @relation(fields: [authorId], references: [id])
+}
+
+enum IssueType {
+  BUG
+  FEATURE_REQUEST
+}
+
+enum IssueStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+}
+
+model Issue {
+  id           String      @id @default(cuid())
+  code         String      @unique @map("code")          
+  type         IssueType                               
+  summary      String      @map("summary")              
+  description  String?     @map("description")          
+  priority     Task_priority                           
+  projectId    String                                  
+  project      Project     @relation(fields: [projectId], references: [id])
+  reporterId   String                                  
+  reporter     User        @relation(fields: [reporterId], references: [id])
+  status       IssueStatus                             
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt      
 }
