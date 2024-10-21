@@ -10,6 +10,9 @@ import { TasksModule } from './tasks/tasks.module';
 import { CommentsService } from './comments/comments.service';
 import { CommentsController } from './comments/comments.controller';
 import { CommentsModule } from './comments/comments.module';
+import { IssuesService } from './issues/issues.service';
+import { IssuesController } from './issues/issues.controller';
+import { IssuesModule } from './issues/issues.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,8 +24,9 @@ import { CommentsModule } from './comments/comments.module';
     ProjectModule,
     TasksModule,
     CommentsModule,
+    IssuesModule,
   ],
-  controllers: [AppController, CommentsController],
-  providers: [AppService, CommentsService],
+  controllers: [AppController, CommentsController, IssuesController],
+  providers: [AppService, CommentsService, IssuesService],
 })
 export class AppModule { }
