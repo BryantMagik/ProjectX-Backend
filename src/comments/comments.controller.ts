@@ -24,7 +24,7 @@ export class CommentsController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateCommentDto: CreateCommentDto, @ActiveUser() user: UserActiveInterface) {
+    update(@Param('id') id: string, @Body() updateCommentDto: Partial<CreateCommentDto>, @ActiveUser() user: UserActiveInterface) {
         return this.commentsService.update(id,updateCommentDto, user);
     }
 

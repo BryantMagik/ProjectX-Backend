@@ -1,12 +1,16 @@
-import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, ValidateIf } from 'class-validator';
 
 export class CreateCommentDto {
   @IsString()
   @IsNotEmpty()
   body: string;
 
+  @ValidateIf((o) => !o.issueId)
   @IsString()
-  @IsNotEmpty()
-  taskId: string;
+  taskId?: string;
+
+  @ValidateIf((o) => !o.taskId)
+  @IsString()
+  issueId?: string;
 
 }
