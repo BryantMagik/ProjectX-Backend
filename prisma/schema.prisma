@@ -81,7 +81,7 @@ model Task {
   users       User[]        @relation("AssignedTasks")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  comments    Comment[]     @relation
+  comments    Comment[]     @relation("TaskComments")
 }
 
 enum Task_priority {
@@ -115,8 +115,8 @@ model Comment {
   body        String
   date        DateTime @default(now())
   updatedAt   DateTime      @updatedAt
-  taskId      String
-  task        Task     @relation(fields: [taskId], references: [id])
+  taskId      String?
+  task        Task?         @relation("TaskComments", fields: [taskId], references: [id])
   issueId     String?
   issue       Issue?        @relation("IssueComments", fields: [issueId], references: [id])
   authorId    String   
