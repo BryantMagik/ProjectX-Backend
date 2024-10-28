@@ -82,6 +82,7 @@ model Task {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   comments    Comment[]     @relation("TaskComments")
+  subtasks    subtask[]     @relation("TaskSubtask")
 }
 
 enum Task_priority {
@@ -107,7 +108,14 @@ enum Task_status {
 }
 
 model subtask {
-  id String @id @default(cuid())
+  id            String    @id @default(cuid())
+  name          String    @db.VarChar(255)
+  description   String?   
+  status        Task_status
+  taskId        String
+  creation_date DateTime  @default(now())
+  update_date   DateTime  @updatedAt
+  task          Task      @relation("TaskSubtask",fields: [taskId], references: [id])
 }
 
 model Comment {
