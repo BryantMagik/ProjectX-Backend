@@ -27,7 +27,8 @@ model User {
   participantProjects Project[] @relation("ProjectParticipants")
   authoredProjects    Project[]  @relation("ProjectAuthors")
   comments            Comment[] @relation
-  issues              Issue[]       @relation 
+  issues              Issue[]       @relation
+  subtasks            subtask[] @relation("Subtasksauthor") 
 }
 
 
@@ -116,6 +117,8 @@ model subtask {
   creation_date DateTime  @default(now())
   update_date   DateTime  @updatedAt
   task          Task      @relation("TaskSubtask",fields: [taskId], references: [id])
+  authorId      String   
+  author        User     @relation("Subtasksauthor",fields: [authorId], references: [id])
 }
 
 model Comment {

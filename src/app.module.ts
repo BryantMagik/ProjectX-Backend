@@ -14,6 +14,8 @@ import { IssuesService } from './issues/issues.service';
 import { IssuesController } from './issues/issues.controller';
 import { IssuesModule } from './issues/issues.module';
 import { SubtasksService } from './subtasks/subtasks.service';
+import { SubtasksController } from './subtasks/subtasks.controller';
+import { SubtasksModule } from './subtasks/subtasks.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,8 +28,9 @@ import { SubtasksService } from './subtasks/subtasks.service';
     TasksModule,
     CommentsModule,
     IssuesModule,
+    SubtasksModule,
   ],
-  controllers: [AppController, CommentsController, IssuesController],
+  controllers: [AppController, CommentsController, IssuesController, SubtasksController],
   providers: [AppService, CommentsService, IssuesService, SubtasksService],
 })
 export class AppModule { }
