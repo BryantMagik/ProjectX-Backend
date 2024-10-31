@@ -103,6 +103,7 @@ export class TasksService {
                 },
                 include: {
                     users: true,
+                    creator: true,
                     comments: true,
                     subtasks: true,
                 }
