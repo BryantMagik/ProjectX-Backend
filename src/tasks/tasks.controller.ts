@@ -33,7 +33,7 @@ export class TasksController {
         const task = await this.tasksService.getTasksById(id)
         return task
     }
-    @Get('user/task')
+    @Get('user/tasks')
     async getTaskByIdWhereId(@ActiveUser() user: UserActiveInterface) {
         const tasks = await this.tasksService.getTaskByIdWhereId(user)
         return tasks
