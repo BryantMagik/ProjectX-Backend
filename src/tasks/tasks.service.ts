@@ -83,6 +83,33 @@ export class TasksService {
             }
         })
     }
+
+    async getTaskByIdWhereId(user: UserActiveInterface) {
+        return await this.prisma.task.findMany(
+            {
+                where: {
+                    OR:[
+                        {
+                            creatorId:user.id
+                        },
+                        {
+                            users: {
+                                some: {
+                                    id: user.id
+                                }
+                            }
+                        }
+                    ]
+                },
+                include: {
+                    users: true,
+                    comments: true,
+                    subtasks: true,
+                }
+            }
+        )
+    }
+
     async deleteTaskByCode(code: string, user: UserActiveInterface) {
         if (!code) throw new BadRequestException('Codigo no encontrado')
         const task = await this.getTaskByCode(code)
