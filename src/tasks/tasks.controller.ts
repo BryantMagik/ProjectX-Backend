@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Role_User } from '@prisma/client';
+import { Role_User, User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { TasksService } from './tasks.service';
 import { TaskDto } from './dto/CreateTask.dto';
@@ -33,6 +33,12 @@ export class TasksController {
         const task = await this.tasksService.getTasksById(id)
         return task
     }
+    @Get('user/task')
+    async getTaskByIdWhereId(@ActiveUser() user: UserActiveInterface) {
+        const tasks = await this.tasksService.getTaskByIdWhereId(user)
+        return tasks
+    }
+
     @Get(':code')
     async getTaskByCode(@Param('code') code: string) {
         const task = await this.tasksService.getTaskByCode(code)
