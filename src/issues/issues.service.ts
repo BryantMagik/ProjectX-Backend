@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, BadRequestException, UnauthorizedException,NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIssue } from './dto/CreateIssue.dto';
 import { Issue } from '@prisma/client';
@@ -110,5 +110,29 @@ export class IssuesService {
       } catch (error) {
         throw new BadRequestException('Error al eliminar el issue');
       }
+    }
+
+    async getIssuesByUser(user: UserActiveInterface) {
+      const userId = user.id;
+  
+      if (!userId) {
+        throw new UnauthorizedException('Usuario no autenticado');
+      }
+  
+      const issues = await this.prisma.issue.findMany({
+        where: {
+          reporterId: userId,
+        },
+        include: {
+          reporter: true,
+          project: true
+        },
+      });
+  
+      if (!issues || issues.length === 0) {
+        throw new NotFoundException('No se encontraron issues para el usuario especificado');
+      }
+  
+      return issues;
     }
 }
