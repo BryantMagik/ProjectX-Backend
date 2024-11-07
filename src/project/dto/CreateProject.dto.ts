@@ -25,6 +25,4 @@ export class ProjectDto {
     @IsArray()
     participants: string[]
 
-    // @IsString()
-    // authorId: string
 }

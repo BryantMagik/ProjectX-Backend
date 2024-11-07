@@ -55,8 +55,10 @@ export class ProjectController {
 
     @Put(':id')
     @UsePipes(ValidationPipe)
-    updateProjectById(@Param('id') id: string, @Body() data) {
-        return this.projectService.updateProjectById(id, data);
+    updateProjectById(@Param('id') id: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+        console.log('Ruta PUT alcanzada', id);
+        console.log('Recibiendo datos:', projectDto);
+        return this.projectService.updateProjectById(id, projectDto, user);
     }
 
     @Delete(':id')
