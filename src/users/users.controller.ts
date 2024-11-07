@@ -5,7 +5,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Role_User } from '@prisma/client';
 
-@Auth(Role_User.ADMIN)
+@Auth(Role_User.USER)
 @ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
@@ -19,8 +19,8 @@ export class UsersController {
     }
 
     @Get()
-    getUsers() {
-        return this.userService.getUsers();
+    async getUsers() {
+        return await this.userService.getUsers();
     }
     @Get(':id')
     async getUserById(@Param('id') id: string) {

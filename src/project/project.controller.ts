@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ProjectService } from './project.service';
@@ -21,7 +21,6 @@ export class ProjectController {
     @Post()
     @UsePipes(ValidationPipe)
     createProject(@Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
-        console.log(user)
         return this.projectService.createProject(projectDto, user);
     }
 
@@ -34,6 +33,13 @@ export class ProjectController {
     async getProjectById(@Param('id') id: string) {
         const project = await this.projectService.getProjectById(id);
         return project
+    }
+
+    @Get('user/projects')
+    async getProjectByIdWhereId(@ActiveUser() user: UserActiveInterface) {
+        const projects = await this.projectService.getProjectByIdWhereId(user)
+        return projects
+
     }
 
     @Get(':code')
@@ -56,6 +62,10 @@ export class ProjectController {
     @Delete(':id')
     deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(id, user);
+    }
+    @Delete(':id')
+    deleteProjectByCode(@Param('id') code: string, @ActiveUser() user: UserActiveInterface) {
+        return this.projectService.deleteProjectById(code, user);
     }
 
 }

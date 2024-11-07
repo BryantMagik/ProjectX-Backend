@@ -22,11 +22,16 @@ model User {
   role                Role_User @default(USER)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
-  authoredProjects    Project[] @relation("AuthorProject")
-  createdTasks        Taks[]    @relation("CreatedTasks")
-  assignedTasks       Taks[]    @relation("AssignedTasks")
+  createdTasks        Task[]    @relation("CreatedTasks")
+  assignedTasks       Task[]    @relation("AssignedTasks")
   participantProjects Project[] @relation("ProjectParticipants")
+  authoredProjects    Project[]  @relation("ProjectAuthors")
+  comments            Comment[] @relation
+  issues              Issue[]       @relation
+  subtasks            subtask[] @relation("Subtasksauthor") 
 }
+
+
 
 enum Role_User {
   USER
@@ -42,14 +47,18 @@ model Project {
   status       Project_Status
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  userId       String
-  author       User           @relation("AuthorProject", fields: [userId], references: [id])
-  taks         Taks[]         @relation("ProjectTasks")
+  authorId     String         
+  author       User           @relation("ProjectAuthors", fields: [authorId], references: [id])
+  tasks        Task[]         @relation("ProjectTasks")
   participants User[]         @relation("ProjectParticipants")
+  issues      Issue[]       @relation
 }
 
 enum Project_Type {
   SOFTWARE
+  EXTERNAL
+  RESEARCH
+  INTERNAL
 }
 
 enum Project_Status {
@@ -58,10 +67,10 @@ enum Project_Status {
   COMPLETED
 }
 
-model Taks {
+model Task {
   id          String        @id @default(cuid())
   code        String        @unique
-  sumary      String
+  summary     String         
   description String
   priority    Task_priority
   task_type   Task_type
@@ -73,6 +82,8 @@ model Taks {
   users       User[]        @relation("AssignedTasks")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  comments    Comment[]     @relation("TaskComments")
+  subtasks    subtask[]     @relation("TaskSubtask")
 }
 
 enum Task_priority {
@@ -84,6 +95,11 @@ enum Task_priority {
 enum Task_type {
   BUG
   FEATURE_REQUEST
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
 }
 
 enum Task_status {
@@ -93,5 +109,55 @@ enum Task_status {
 }
 
 model subtask {
-  id String @id @default(cuid())
+  id            String    @id @default(cuid())
+  name          String    @db.VarChar(255)
+  description   String?   
+  status        Task_status
+  taskId        String
+  creation_date DateTime  @default(now())
+  update_date   DateTime  @updatedAt
+  task          Task      @relation("TaskSubtask",fields: [taskId], references: [id])
+  authorId      String   
+  author        User     @relation("Subtasksauthor",fields: [authorId], references: [id])
+}
+
+model Comment {
+  id          String        @id @default(cuid())
+  body        String
+  date        DateTime @default(now())
+  updatedAt   DateTime      @updatedAt
+  taskId      String?
+  task        Task?         @relation("TaskComments", fields: [taskId], references: [id])
+  issueId     String?
+  issue       Issue?        @relation("IssueComments", fields: [issueId], references: [id])
+  authorId    String   
+  author      User     @relation(fields: [authorId], references: [id])
+}
+
+enum IssueType {
+  BUG
+  FEATURE_REQUEST
+}
+
+enum IssueStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+}
+
+model Issue {
+  id           String      @id @default(cuid())
+  code         String      @unique @map("code")          
+  type         IssueType                               
+  summary      String      @map("summary")              
+  description  String?     @map("description")          
+  priority     Task_priority                           
+  projectId    String                                  
+  project      Project     @relation(fields: [projectId], references: [id])
+  reporterId   String                                  
+  reporter     User        @relation(fields: [reporterId], references: [id])
+  status       IssueStatus                             
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  comments     Comment[]   @relation("IssueComments")
 }

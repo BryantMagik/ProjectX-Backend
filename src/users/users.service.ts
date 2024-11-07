@@ -9,16 +9,26 @@ export class UsersService {
     ) { }
 
     async createUser(data: Prisma.UserCreateInput) {
-
         return await this.prisma.user.create({
             data: {
                 ...data,
             }
         })
+        
     }
 
-     getUsers() {
-        return this.prisma.user.findMany()
+    getUsers() {
+        return this.prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                first_name: true,
+                last_name: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        })
     }
 
     getUserById(id: string) {

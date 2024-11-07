@@ -12,9 +12,35 @@ export class ProjectService {
 
     async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
         const userId = user.id
+        if(!userId){
+            throw new BadRequestException('No existe ningun usuario con sesión iniciada')
+
+        }
+        const existingProject = await this.prisma.project.findFirst({
+            where: {
+                OR: [
+                    { name: projectDto.name },
+                    { code: projectDto.code }
+                ]
+            }
+        })
+
+        if (existingProject) {
+            throw new BadRequestException('Ya existe un proyecto con este nombre o código')
+        }
+
+        const { code, name, description, type, status, participants } = projectDto
+
         return await this.prisma.project.create({
             data: {
-                ...projectDto,
+                code,
+                name,
+                description,
+                type,
+                status,
+                participants: {
+                    connect: participants.map(userId => ({ id: userId })),
+                },
                 author: {
                     connect: { id: userId },
                 },
@@ -22,56 +48,83 @@ export class ProjectService {
         })
     }
 
-    getProjects() {
-        return this.prisma.project.findMany(
+    async getProjects() {
+        return await this.prisma.project.findMany(
             {
-                include : {
-                    author: true,
+                include: {
                     participants: true,
-                    taks: true, 
+                    tasks: true,
+                    author: true
                 }
             }
         )
     }
 
-    getProjectById(id: string) {
+    async getProjectByIdWhereId(user: UserActiveInterface) {
+        return await this.prisma.project.findMany(
+            {
+                where: {
+                    OR: [
+                        {
+                            authorId:user.id
+                        },
+                        {
+                            participants: {
+                                some: {
+                                    id: user.id
+                                }
+                            }
+                        }
+                    ]
+
+                },
+                include: {
+                    participants: true,
+                    tasks: true,
+                    author: true
+                }
+            }
+        )
+    }
+
+    async getProjectById(id: string) {
         if (!id) throw new Error('Id no encontrado')
-        return this.prisma.project.findUnique({
+        return await this.prisma.project.findUnique({
             where: {
                 id: id
             },
-            include : {
-                author: true,
+            include: {
                 participants: true,
-                taks: true, 
+                tasks: true,
+                author: true
             }
         })
     }
 
-    getProjectByCode(code: string) {
+    async getProjectByCode(code: string) {
         if (!code) throw new Error('Code no encontrado')
-        return this.prisma.project.findUnique({
+        return await this.prisma.project.findUnique({
             where: {
                 code: code
             },
-            include : {
-                author: true,
+            include: {
                 participants: true,
-                taks: true, 
+                tasks: true,
+                author: true
             }
         })
     }
 
-    getProjectByName(name: string) {
+    async getProjectByName(name: string) {
         if (!name) throw new Error('Name no encontrado')
-        return this.prisma.project.findFirst({
+        return await this.prisma.project.findFirst({
             where: {
                 name: name
             },
-            include : {
-                author: true,
+            include: {
                 participants: true,
-                taks: true, 
+                tasks: true,
+                author: true,
             }
         })
     }
@@ -80,12 +133,27 @@ export class ProjectService {
         const project = await this.getProjectById(id)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-        if (project.userId !== user.id) {
-            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', project.userId);
-        }
+            if (project.authorId !== user.id) {
+                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+            }
+        
         return this.prisma.project.delete({
             where: {
                 id: id
+            }
+        })
+    }
+
+    async deleteProjectByCode(code: string, user: UserActiveInterface) {
+        const project = await this.getProjectByCode(code)
+        if (!project) throw new BadRequestException('Proyecto no encontrado')
+
+            if (project.authorId !== user.id) {
+                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+            }
+        return this.prisma.project.delete({
+            where: {
+                code: code
             }
         })
     }
