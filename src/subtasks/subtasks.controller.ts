@@ -27,6 +27,11 @@ export class SubtasksController {
         return await this.subtaskService.findOne(id);
     }
 
+    @Get('user/subtasks')
+    async getSubtasksByUser(@ActiveUser() user: UserActiveInterface) {
+        return await this.subtaskService.getSubtasksByUser(user);
+    }
+
     @Post()
     async create(@Body()createSubtaskDto:CreateSubtaskDto,@ActiveUser()user: UserActiveInterface){
         return await this.subtaskService.create(createSubtaskDto,user);
@@ -43,7 +48,7 @@ export class SubtasksController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id:string){
+    async deleteSubtaskbyid(@Param('id') id:string){
         if (!id) {
             throw new BadRequestException('Subtask ID is required');
         }

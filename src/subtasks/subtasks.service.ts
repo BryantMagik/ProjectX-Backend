@@ -87,5 +87,28 @@ export class SubtasksService {
 
     }
 
+    async getSubtasksByUser(user:UserActiveInterface){
+
+        if (!user || !user.id) {
+            throw new UnauthorizedException('User is not authenticated or user ID is missing');
+        }
+
+        const subtasks = await this.prisma.subtask.findMany({
+            where:{
+                authorId:user.id
+            },
+            include:{
+                task:true
+            }
+
+        });
+        
+        if (!subtasks || subtasks.length === 0) {
+            throw new NotFoundException('No subtasks found for the specified user');
+        }
+
+        return subtasks;
+    }
+
 
 }

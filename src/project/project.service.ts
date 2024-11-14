@@ -12,7 +12,7 @@ export class ProjectService {
 
     async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
         const userId = user.id
-        if(!userId){
+        if (!userId) {
             throw new BadRequestException('No existe ningun usuario con sesión iniciada')
 
         }
@@ -66,7 +66,7 @@ export class ProjectService {
                 where: {
                     OR: [
                         {
-                            authorId:user.id
+                            authorId: user.id
                         },
                         {
                             participants: {
@@ -133,10 +133,10 @@ export class ProjectService {
         const project = await this.getProjectById(id)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-            if (project.authorId !== user.id) {
-                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
-            }
-        
+        if (project.authorId !== user.id) {
+            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+        }
+
         return this.prisma.project.delete({
             where: {
                 id: id
@@ -148,9 +148,9 @@ export class ProjectService {
         const project = await this.getProjectByCode(code)
         if (!project) throw new BadRequestException('Proyecto no encontrado')
 
-            if (project.authorId !== user.id) {
-                throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
-            }
+        if (project.authorId !== user.id) {
+            throw new UnauthorizedException('No tienes permiso para eliminar este proyecto');
+        }
         return this.prisma.project.delete({
             where: {
                 code: code
@@ -158,15 +158,36 @@ export class ProjectService {
         })
     }
 
-    async updateProjectById(id: string, data: Prisma.ProjectUpdateInput) {
+    async updateProjectById(id: string, newProject: ProjectDto, user: UserActiveInterface) {
+        const userId = user.id
+
+        if (!userId) throw new BadRequestException('No existe ningun usuario con sesión iniciada')
+
         const findProject = await this.getProjectById(id)
+
         if (!findProject) throw new BadRequestException('Proyecto no encontrado')
+
+        if (findProject.authorId !== userId) throw new BadRequestException('No eres el author de este proyecto')
+
+        const participantsUpdate = newProject.participants
+            ? {
+                participants: {
+                    connect: newProject.participants.map(participantId => ({ id: participantId }))
+                }
+            }
+            : {}
+
         return this.prisma.project.update({
             where: {
                 id: id
             },
             data: {
-                ...data
+                name: newProject.name,
+                description: newProject.description,
+                code: newProject.code,
+                type: newProject.type,
+                status: newProject.status,
+                ...participantsUpdate
             }
         })
     }

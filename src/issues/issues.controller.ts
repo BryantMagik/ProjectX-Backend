@@ -12,7 +12,7 @@ import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 @ApiTags('Issues')
 @Controller('issues')
 export class IssuesController {
-    constructor(private issueService: IssuesService, private readonly userService: UsersService){}
+    constructor(private readonly issueService: IssuesService, private readonly userService: UsersService){}
 
     @Get()
     findAll() {
@@ -22,6 +22,11 @@ export class IssuesController {
     @Get(':id')
     findOne(@Param('id') id:string){
         return this.issueService.findOne(id);
+    }
+
+    @Get('user/issues')
+    async getIssuesByUser(@ActiveUser() user: UserActiveInterface) {
+        return await this.issueService.getIssuesByUser(user);
     }
 
     @Post()

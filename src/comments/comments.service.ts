@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable,BadRequestException,UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable,BadRequestException,UnauthorizedException,NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCommentDto } from './dto/CreateComment.dto';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
@@ -99,6 +99,32 @@ export class CommentsService {
       return this.prisma.comment.delete({
           where: { id },
       });
+  }
+
+  async getCommentsByUser(user:UserActiveInterface){
+
+    if (!user || !user.id) {
+      throw new UnauthorizedException('Usuario no autenticado o ID de usuario faltante.');
+    }
+
+    const comments = await this.prisma.comment.findMany({
+      where:{
+        authorId:user.id
+      },
+      include:{
+        author: true,
+        task: true,
+        issue: true,
+      }
+    });
+
+    if (!comments || comments.length === 0) {
+      throw new NotFoundException('No se encontraron comentarios para el usuario especificado.');
+    }
+
+    return comments;
+
+
   }
 
 

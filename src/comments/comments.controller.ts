@@ -38,6 +38,11 @@ export class CommentsController {
         return this.commentsService.findOne(id);
     }
 
+    @Get('user/comments')
+    async getCommentsByUser(@ActiveUser() user: UserActiveInterface) {
+        return await this.commentsService.getCommentsByUser(user);
+    }
+
     @Delete(':id')
     async deleteCommentById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.commentsService.deleteCommentById(id, user);
