@@ -19,6 +19,7 @@ model User {
   first_name          String
   last_name           String
   password            String
+  type_user           UserType  @default(TRAINEE )
   role                Role_User @default(USER)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -30,8 +31,14 @@ model User {
   issues              Issue[]       @relation
   subtasks            subtask[] @relation("Subtasksauthor") 
 }
-
-
+enum UserType {
+  TRAINEE           
+  DEVELOPER
+  MANAGER
+  DESIGNER
+  QA
+  PRODUCT_OWNER
+}
 
 enum Role_User {
   USER
