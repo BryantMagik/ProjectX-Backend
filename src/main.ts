@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './swagger/swagger.setup';
+import * as cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,7 +13,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
   console.log('Prefijo global establecido a /api/v1');
-
+  app.use(cors());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -27,6 +28,7 @@ async function bootstrap() {
     ],
     methods: 'GET, POST, PUT, DELETE, PATCH',
     allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
   })
   setupSwagger(app);
   console.log('Swagger configurado');
