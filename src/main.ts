@@ -12,6 +12,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
   console.log('Prefijo global establecido a /api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,13 +21,9 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: [
-      'http://localhost:4200', 
-      'https://project-x-frontend-eta.vercel.app'
-    ],
+    origin: 'https://project-x-frontend-eta.vercel.app',
     methods: 'GET, POST, PUT, DELETE, PATCH',
     allowedHeaders: 'Content-Type, Authorization',
-    credentials: true,
   })
   setupSwagger(app);
   console.log('Swagger configurado');
