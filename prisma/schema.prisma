@@ -26,11 +26,12 @@ model User {
   createdTasks        Task[]    @relation("CreatedTasks")
   assignedTasks       Task[]    @relation("AssignedTasks")
   participantProjects Project[] @relation("ProjectParticipants")
-  authoredProjects    Project[]  @relation("ProjectAuthors")
+  authoredProjects    Project[] @relation("ProjectAuthors")
   comments            Comment[] @relation
-  issues              Issue[]       @relation
+  issues              Issue[]   @relation
   subtasks            subtask[] @relation("Subtasksauthor") 
 }
+
 enum UserType {
   TRAINEE           
   DEVELOPER
