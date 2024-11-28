@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString, MaxLength, MinLength, Matches, IsEmail } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString, MaxLength, MinLength, Matches, IsEmail, IsOptional } from "class-validator";
 import { Role_User } from "@prisma/client";
 import { Transform } from "class-transformer";
 
@@ -23,6 +23,10 @@ export class RegisterDto {
         message: 'La contraseña debe contener al menos una letra minúscula, una letra mayúscula y un número.'
     })
     password: string;
+
+    @IsOptional()
+    @IsString()
+    profile_picture: string
 
     @IsEnum(Role_User)
     @IsNotEmpty()
