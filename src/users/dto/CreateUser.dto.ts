@@ -1,6 +1,6 @@
 import { Role_User } from "@prisma/client"
 import { Transform } from "class-transformer"
-import { IsEnum, IsNotEmpty, IsString, MaxLength } from "class-validator"
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator"
 
 export class CreateUserDto {
     @IsString()
@@ -24,4 +24,8 @@ export class CreateUserDto {
     @IsEnum(Role_User)
     @IsNotEmpty()
     role: Role_User;
+
+    @IsOptional()
+    @IsString()
+    profile_picture: string
 }
