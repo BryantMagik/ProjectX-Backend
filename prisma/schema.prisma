@@ -17,7 +17,7 @@ model User {
   id                  String    @id @default(cuid())
   email               String    @unique
   first_name          String
-  profile_picture     String
+  profile_picture     String?
   last_name           String
   password            String
   type_user           UserType  @default(TRAINEE )
