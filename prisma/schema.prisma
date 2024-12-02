@@ -13,6 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Workspace {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  image               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  ownerId             String
+  owner               User         @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  users               User[]       @relation("WorkspaceMembers")
+  projects            Project[]    @relation("WorkspaceProjects")
+}
+
 model User {
   id                  String    @id @default(cuid())
   email               String    @unique
@@ -20,7 +33,7 @@ model User {
   profile_picture     String?
   last_name           String
   password            String
-  type_user           UserType  @default(TRAINEE )
+  type_user           UserType  @default(TRAINEE)
   role                Role_User @default(USER)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -30,12 +43,14 @@ model User {
   authoredProjects    Project[] @relation("ProjectAuthors")
   comments            Comment[] @relation
   issues              Issue[]   @relation("reporterissue")
-  subtasks            subtask[] @relation("Subtasksauthor") 
+  subtasks            subtask[] @relation("Subtasksauthor")
   assignedtoIssues    Issue[]   @relation("Assignedto")
+  workspacesAsMember  Workspace[] @relation("WorkspaceMembers")
+  workspacesAsOwner   Workspace[] @relation("WorkspaceOwner")
 }
 
 enum UserType {
-  TRAINEE           
+  TRAINEE
   DEVELOPER
   MANAGER
   DESIGNER
@@ -52,16 +67,19 @@ model Project {
   id           String         @id @default(cuid())
   code         String         @unique
   name         String
-  description  String
+  image        String?
+  description  String?
   type         Project_Type
   status       Project_Status
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  authorId     String         
+  authorId     String
   author       User           @relation("ProjectAuthors", fields: [authorId], references: [id])
   tasks        Task[]         @relation("ProjectTasks")
   participants User[]         @relation("ProjectParticipants")
-  issues      Issue[]         @relation
+  issues       Issue[]        @relation
+  workspaceId  String
+  workspace    Workspace    @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
 }
 
 enum Project_Type {
@@ -80,7 +98,7 @@ enum Project_Status {
 model Task {
   id          String        @id @default(cuid())
   code        String        @unique
-  summary     String         
+  summary     String
   description String
   priority    Task_priority
   task_type   Task_type
@@ -119,29 +137,29 @@ enum Task_status {
 }
 
 model subtask {
-  id            String    @id @default(cuid())
-  name          String    @db.VarChar(255)
-  description   String?   
+  id            String      @id @default(cuid())
+  name          String      @db.VarChar(255)
+  description   String?
   status        Task_status
   taskId        String
-  creation_date DateTime  @default(now())
-  update_date   DateTime  @updatedAt
-  task          Task      @relation("TaskSubtask",fields: [taskId], references: [id])
-  authorId      String   
-  author        User     @relation("Subtasksauthor",fields: [authorId], references: [id])
+  creation_date DateTime    @default(now())
+  update_date   DateTime    @updatedAt
+  task          Task        @relation("TaskSubtask", fields: [taskId], references: [id])
+  authorId      String
+  author        User        @relation("Subtasksauthor", fields: [authorId], references: [id])
 }
 
 model Comment {
-  id          String        @id @default(cuid())
-  body        String
-  date        DateTime @default(now())
-  updatedAt   DateTime      @updatedAt
-  taskId      String?
-  task        Task?         @relation("TaskComments", fields: [taskId], references: [id])
-  issueId     String?
-  issue       Issue?        @relation("IssueComments", fields: [issueId], references: [id])
-  authorId    String   
-  author      User     @relation(fields: [authorId], references: [id])
+  id        String   @id @default(cuid())
+  body      String
+  date      DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  taskId    String?
+  task      Task?    @relation("TaskComments", fields: [taskId], references: [id])
+  issueId   String?
+  issue     Issue?   @relation("IssueComments", fields: [issueId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
 }
 
 enum IssueType {
@@ -156,19 +174,19 @@ enum IssueStatus {
 }
 
 model Issue {
-  id           String      @id @default(cuid())
-  code         String      @unique @map("code")          
-  type         IssueType                               
-  summary      String      @map("summary")              
-  description  String?     @map("description")          
-  priority     Task_priority                           
-  projectId    String                                  
-  project      Project     @relation(fields: [projectId], references: [id])
-  reporterId   String                                  
-  reporter     User        @relation("reporterissue",fields: [reporterId], references: [id])
-  status       IssueStatus                             
+  id          String        @id @default(cuid())
+  code        String        @unique @map("code")
+  type        IssueType
+  summary     String        @map("summary")
+  description String?       @map("description")
+  priority    Task_priority
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id])
+  reporterId  String
+  reporter    User          @relation("reporterissue", fields: [reporterId], references: [id])
+  status      IssueStatus
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  comments     Comment[]   @relation("IssueComments")
-  assignedTo    User[]       @relation("Assignedto")
+  comments    Comment[]     @relation("IssueComments")
+  assignedTo  User[]        @relation("Assignedto")
 }

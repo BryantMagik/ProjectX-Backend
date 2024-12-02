@@ -16,6 +16,9 @@ import { IssuesModule } from './issues/issues.module';
 import { SubtasksService } from './subtasks/subtasks.service';
 import { SubtasksController } from './subtasks/subtasks.controller';
 import { SubtasksModule } from './subtasks/subtasks.module';
+import { WorkspaceService } from './workspace/workspace.service';
+import { WorkspaceController } from './workspace/workspace.controller';
+import { WorkspaceModule } from './workspace/workspace.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,8 +32,9 @@ import { SubtasksModule } from './subtasks/subtasks.module';
     CommentsModule,
     IssuesModule,
     SubtasksModule,
+    WorkspaceModule,
   ],
-  controllers: [AppController, CommentsController, IssuesController, SubtasksController],
-  providers: [AppService, CommentsService, IssuesService, SubtasksService],
+  controllers: [AppController, CommentsController, IssuesController, SubtasksController, WorkspaceController],
+  providers: [AppService, CommentsService, IssuesService, SubtasksService, WorkspaceService],
 })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common'
+import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { AuthService } from './auth.service'
@@ -7,6 +7,7 @@ import { Role_User } from '@prisma/client'
 import { Auth } from './decorators/auth.decorator'
 import { ActiveUser } from '../users/decorators/active-user.decorator'
 import { UserActiveInterface } from './interface/user-active.interface'
+import { UpdateUserDto } from './dto/update.dto'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,5 +32,10 @@ export class AuthController {
     profile(@ActiveUser() user: UserActiveInterface) {
         return this.authService.profile(user)
     }
+
+    @ApiBearerAuth()
+    @Patch('update')
+    @Auth(Role_User.USER)
+    update(@ActiveUser() user: UserActiveInterface, @Body() updateUserDTO: UpdateUserDto){}
 
 }

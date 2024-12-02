@@ -3,7 +3,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIssue } from './dto/CreateIssue.dto';
 import { Issue } from '@prisma/client';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
-import { connect } from 'http2';
 
 @Injectable()
 export class IssuesService {

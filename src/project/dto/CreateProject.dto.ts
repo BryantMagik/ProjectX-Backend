@@ -1,5 +1,5 @@
 import { Project_Status, Project_Type } from "@prisma/client"
-import { ArrayMinSize, IsArray, IsEnum,  IsNotEmpty, IsString } from "class-validator"
+import { ArrayMinSize, IsArray, IsEnum,  IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class ProjectDto {
     @IsString()
@@ -11,7 +11,7 @@ export class ProjectDto {
     name: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     description: string
 
     @IsEnum(Project_Type)
@@ -23,6 +23,8 @@ export class ProjectDto {
     status: Project_Status
 
     @IsArray()
+    @IsOptional()
     participants: string[]
 
 }
+

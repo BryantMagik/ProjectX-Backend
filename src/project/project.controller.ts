@@ -21,7 +21,7 @@ export class ProjectController {
     @Post()
     @UsePipes(ValidationPipe)
     createProject(@Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
-        return this.projectService.createProject(projectDto, user);
+        // return this.projectService.createProject(projectDto, user);
     }
 
     @Get()
@@ -65,6 +65,7 @@ export class ProjectController {
     deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(id, user);
     }
+    
     @Delete(':id')
     deleteProjectByCode(@Param('id') code: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(code, user);
