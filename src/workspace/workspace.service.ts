@@ -28,6 +28,8 @@ export class WorkspaceService {
         const workspace = await this.prisma.workspace.create({
             data: {
                 name: workspaceDto.name,
+                image: workspaceDto.image,
+                description: workspaceDto.description,
                 ownerId: userId
             }
         })
