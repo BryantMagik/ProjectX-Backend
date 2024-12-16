@@ -59,6 +59,22 @@ export class ProjectService {
         })
     }
 
+    async getProjectByWorkspaceId(workspaceId: string) {
+        return await this.prisma.project.findMany(
+            {
+                where: {
+                    workspaceId: workspaceId
+                },
+                include: {
+                    participants: true,
+                    tasks: true,
+                    author: true,
+                }
+            }
+        )
+    }
+
+    
     async getProjects() {
         return await this.prisma.project.findMany(
             {

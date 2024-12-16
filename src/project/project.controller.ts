@@ -20,13 +20,18 @@ export class ProjectController {
 
     @Post()
     @UsePipes(ValidationPipe)
-    createProject(@Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
-        // return this.projectService.createProject(projectDto, user);
+    createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+        return this.projectService.createProject(workspaceId, projectDto, user);
     }
 
     @Get()
     getProjects() {
         return this.projectService.getProjects();
+    }
+
+    @Get(':workspaceId')
+    getProjectByWorkspaceId(@Param('workspaceId') workspaceId: string) {
+        return this.projectService.getProjectByWorkspaceId(workspaceId);
     }
 
     @Get(':id')
@@ -65,7 +70,7 @@ export class ProjectController {
     deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(id, user);
     }
-    
+
     @Delete(':id')
     deleteProjectByCode(@Param('id') code: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(code, user);
