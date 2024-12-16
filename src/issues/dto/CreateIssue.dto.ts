@@ -1,4 +1,4 @@
-import { IsString,IsNotEmpty,IsOptional,IsEnum } from "class-validator";
+import { IsString,IsNotEmpty,IsOptional,IsEnum,isArray, IsArray } from "class-validator";
 import { IssueType,Task_priority,IssueStatus } from "@prisma/client";
 
 export class CreateIssue{
@@ -29,4 +29,7 @@ export class CreateIssue{
     @IsEnum(IssueStatus)
     @IsNotEmpty()
     status: IssueStatus;
+
+    @IsArray()
+    assignedTo: string[]
 }

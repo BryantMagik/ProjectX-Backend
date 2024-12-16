@@ -1,16 +1,24 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectDto } from './dto/CreateProject.dto';
+import { WorkspaceService } from 'src/workspace/workspace.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ProjectService {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly workspace: WorkspaceService,
+        private readonly user: UsersService
     ) { }
 
-    async createProject(projectDto: ProjectDto, user: UserActiveInterface) {
+    async createProject(workspaceId: string, projectDto: ProjectDto, user: UserActiveInterface) {
+
+        const existingWorkspace = await this.workspace.getWorkspaceById(workspaceId)
+
+        if (!existingWorkspace) throw new Error('El proyecto no existe')
+
         const userId = user.id
         if (!userId) {
             throw new BadRequestException('No existe ningun usuario con sesión iniciada')
@@ -29,25 +37,44 @@ export class ProjectService {
             throw new BadRequestException('Ya existe un proyecto con este nombre o código')
         }
 
+        const dbUser = await this.user.getUserById(user.id)
+
+        if (!dbUser) throw new Error('Usuario no encontrado en la DB')
+            
         const { code, name, description, type, status, participants } = projectDto
 
         return await this.prisma.project.create({
             data: {
                 code,
                 name,
+                workspaceId: existingWorkspace.id,
                 description,
                 type,
                 status,
+                authorId: userId,
                 participants: {
                     connect: participants.map(userId => ({ id: userId })),
-                },
-                author: {
-                    connect: { id: userId },
                 },
             },
         })
     }
 
+    async getProjectByWorkspaceId(workspaceId: string) {
+        return await this.prisma.project.findMany(
+            {
+                where: {
+                    workspaceId: workspaceId
+                },
+                include: {
+                    participants: true,
+                    tasks: true,
+                    author: true,
+                }
+            }
+        )
+    }
+
+    
     async getProjects() {
         return await this.prisma.project.findMany(
             {

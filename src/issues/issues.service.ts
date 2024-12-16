@@ -15,11 +15,16 @@ export class IssuesService {
         throw new UnauthorizedException('Usuario no autenticado');
       }
 
+      const{assignedTo}=createIssueDto
+
       try {
         return await this.prisma.issue.create({
           data: {
             ...createIssueDto,
             reporterId: userId,
+            assignedTo:{
+              connect: assignedTo.map(userId => ({id:userId}))
+            }
           },
         });
       } catch (error) {
@@ -74,13 +79,23 @@ export class IssuesService {
       if (issue.reporterId !== userId) {
         throw new ForbiddenException('No tienes permiso para actualizar este issue');
       }
+
+      const assignedToUpdate = updateIssueDto.assignedTo?{
+        assignedTo:{
+          connect: updateIssueDto.assignedTo.map(assignedToId => ({id: assignedToId}))
+        }
+      }:{}
   
       try {
         return await this.prisma.issue.update({
           where: { id },
           data: {
-            ...updateIssueDto,
-            reporterId: userId,
+            type:updateIssueDto.type,
+            summary:updateIssueDto.summary,
+            description:updateIssueDto.description,
+            priority:updateIssueDto.priority,
+            status:updateIssueDto.status,
+            ...assignedToUpdate
           },
         });
       } catch (error) {
