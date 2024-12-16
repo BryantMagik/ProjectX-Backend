@@ -21,7 +21,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: ['https://project-x-frontend-nu.vercel.app','http://localhost:4200'],
+    origin: ['https://project-x-frontend-nu.vercel.app','http://localhost:4200','https://project-x-frontend-l6tfew3qj-bryantmagiks-projects.vercel.app'],
     methods: 'GET, POST, PUT, DELETE, PATCH',
     allowedHeaders: 'Content-Type, Authorization',
   })
