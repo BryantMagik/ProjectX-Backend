@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectDto } from './dto/CreateProject.dto';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UsersService } from 'src/users/users.service';
+import { Project_Status } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -40,8 +41,8 @@ export class ProjectService {
         const dbUser = await this.user.getUserById(user.id)
 
         if (!dbUser) throw new Error('Usuario no encontrado en la DB')
-            
-        const { code, name, description, type, status, participants } = projectDto
+
+        const { code, name, description, type, status = Project_Status.ONGOING, participants } = projectDto
 
         return await this.prisma.project.create({
             data: {
@@ -74,7 +75,7 @@ export class ProjectService {
         )
     }
 
-    
+
     async getProjects() {
         return await this.prisma.project.findMany(
             {

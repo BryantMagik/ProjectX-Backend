@@ -70,7 +70,7 @@ model Project {
   image        String?
   description  String?
   type         Project_Type
-  status       Project_Status
+  status       Project_Status?@default(ONGOING)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   authorId     String
