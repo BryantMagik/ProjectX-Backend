@@ -43,6 +43,16 @@ export class CommentsController {
         return await this.commentsService.getCommentsByUser(user);
     }
 
+    @Get('tasks/:taskId')
+    async findCommentsByTask(@Param('taskId') taskId: string) {
+        return this.commentsService.findCommentsByTask(taskId);
+    }
+
+    @Get('issues/:issueId')
+    async findCommentsByIssue(@Param('issueId') issueId: string) {
+        return this.commentsService.findCommentsByIssue(issueId);
+    }
+
     @Delete(':id')
     async deleteCommentById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.commentsService.deleteCommentById(id, user);

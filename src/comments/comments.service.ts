@@ -127,6 +127,43 @@ export class CommentsService {
 
   }
 
+  async findCommentsByTask(taskId: string) {
+    if (!taskId) {
+        throw new BadRequestException('Debe proporcionar un taskId válido');
+    }
+
+    const comments = await this.prisma.comment.findMany({
+        where: { taskId },
+        orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        include: { author: true },
+    });
+
+    if (!comments || comments.length === 0) {
+        throw new NotFoundException(`No se encontraron comentarios para la tarea con ID ${taskId}`);
+    }
+
+    return comments;
+  }
+
+  async findCommentsByIssue(issueId: string) {
+    if (!issueId) {
+        throw new BadRequestException('Debe proporcionar un issueId válido');
+    }
+
+    const comments = await this.prisma.comment.findMany({
+        where: { issueId },
+        orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        include: { author: true },
+    });
+
+    if (!comments || comments.length === 0) {
+        throw new NotFoundException(`No se encontraron comentarios para el issue con ID ${issueId}`);
+    }
+
+    return comments;
+  }
+
+
 
 }
 
