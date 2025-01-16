@@ -5,7 +5,6 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ProjectService } from './project.service';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { ProjectDto } from './dto/CreateProject.dto';
-import { UsersService } from 'src/users/users.service';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 
 
@@ -15,7 +14,6 @@ import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 export class ProjectController {
     constructor(
         private readonly projectService: ProjectService,
-        private readonly userService: UsersService
     ) { }
 
     @Post()
@@ -67,7 +65,7 @@ export class ProjectController {
     }
 
     @Delete(':id')
-    deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
+    async deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(id, user);
     }
 
