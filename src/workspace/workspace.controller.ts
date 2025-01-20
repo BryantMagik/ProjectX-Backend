@@ -41,6 +41,7 @@ export class WorkspaceController {
         const workspaces = await this.workspaceService.getWorkspaceByIdWhereId(user)
         return workspaces
     }
+    
     @Patch(':id')
     @UsePipes(ValidationPipe)
     async updateWorkspace(@Param('id') id: string, @Body() workspaceDto: CreateWorkSpaceDto, @ActiveUser() user: UserActiveInterface) {

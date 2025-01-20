@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -27,14 +27,17 @@ export class ProjectController {
         return this.projectService.getProjects();
     }
 
-    @Get(':workspaceId')
+    @Get('workspace/:workspaceId')
     getProjectByWorkspaceId(@Param('workspaceId') workspaceId: string) {
         return this.projectService.getProjectByWorkspaceId(workspaceId);
     }
 
-    @Get(':id')
+    @Get('id/:id')
     async getProjectById(@Param('id') id: string) {
         const project = await this.projectService.getProjectById(id);
+        if (!project) {
+            throw new NotFoundException('Proyecto no encontrado');
+        }
         return project
     }
 
@@ -42,21 +45,20 @@ export class ProjectController {
     async getProjectByIdWhereId(@ActiveUser() user: UserActiveInterface) {
         const projects = await this.projectService.getProjectByIdWhereId(user)
         return projects
-
     }
 
-    @Get(':code')
+    @Get('code/:code')
     async getProjectByCode(@Param('code') code: string) {
         const project = await this.projectService.getProjectByCode(code);
         return project
     }
-    @Get(':name')
+    @Get('name/:name')
     async getProjectByName(@Param('name') name: string) {
         const project = await this.projectService.getProjectByName(name);
         return project
     }
 
-    @Put(':id')
+    @Put('id/:id')
     @UsePipes(ValidationPipe)
     updateProjectById(@Param('id') id: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
         console.log('Ruta PUT alcanzada', id);
@@ -64,14 +66,9 @@ export class ProjectController {
         return this.projectService.updateProjectById(id, projectDto, user);
     }
 
-    @Delete(':id')
+    @Delete('id/:id')
     async deleteProjectById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.deleteProjectById(id, user);
-    }
-
-    @Delete(':id')
-    deleteProjectByCode(@Param('id') code: string, @ActiveUser() user: UserActiveInterface) {
-        return this.projectService.deleteProjectById(code, user);
     }
 
 }

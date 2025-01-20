@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectDto } from './dto/CreateProject.dto';
@@ -115,18 +115,25 @@ export class ProjectService {
         )
     }
 
-    async getProjectById(id: string) {
-        if (!id) throw new Error('Id no encontrado')
-        return await this.prisma.project.findUnique({
+    async getProjectById(projectId: string) {
+        if (!projectId) throw new Error('Id no encontrado')
+
+        const project = await this.prisma.project.findUnique({
             where: {
-                id: id
+                id: projectId
             },
             include: {
                 participants: true,
                 tasks: true,
-                author: true
+                author: true,
             }
-        })
+        });
+        if (!project) {
+            throw new NotFoundException(`Proyecto con ID ${projectId} no encontrado`);
+        }
+
+        return project
+
     }
 
     async getProjectByCode(code: string) {
