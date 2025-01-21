@@ -70,7 +70,7 @@ model Project {
   image        String?
   description  String?
   type         Project_Type
-  status       Project_Status
+  status       Project_Status?@default(ONGOING)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   authorId     String
@@ -97,7 +97,7 @@ enum Project_Status {
 
 model Task {
   id          String        @id @default(cuid())
-  code        String        @unique
+  name        String        @unique
   summary     String
   description String
   priority    Task_priority

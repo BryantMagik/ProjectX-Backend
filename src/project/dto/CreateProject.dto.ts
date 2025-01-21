@@ -19,6 +19,7 @@ export class ProjectDto {
     type: Project_Type
 
     @IsEnum(Project_Status)
+    @IsOptional()
     @IsNotEmpty()
     status: Project_Status
 

@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectDto } from './dto/CreateProject.dto';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UsersService } from 'src/users/users.service';
+import { Project_Status } from '@prisma/client';
 
 @Injectable()
 export class ProjectService {
@@ -40,8 +41,8 @@ export class ProjectService {
         const dbUser = await this.user.getUserById(user.id)
 
         if (!dbUser) throw new Error('Usuario no encontrado en la DB')
-            
-        const { code, name, description, type, status, participants } = projectDto
+
+        const { code, name, description, type, status = Project_Status.ONGOING, participants } = projectDto
 
         return await this.prisma.project.create({
             data: {
@@ -74,7 +75,7 @@ export class ProjectService {
         )
     }
 
-    
+
     async getProjects() {
         return await this.prisma.project.findMany(
             {
@@ -114,18 +115,25 @@ export class ProjectService {
         )
     }
 
-    async getProjectById(id: string) {
-        if (!id) throw new Error('Id no encontrado')
-        return await this.prisma.project.findUnique({
+    async getProjectById(projectId: string) {
+        if (!projectId) throw new Error('Id no encontrado')
+
+        const project = await this.prisma.project.findUnique({
             where: {
-                id: id
+                id: projectId
             },
             include: {
                 participants: true,
                 tasks: true,
-                author: true
+                author: true,
             }
-        })
+        });
+        if (!project) {
+            throw new NotFoundException(`Proyecto con ID ${projectId} no encontrado`);
+        }
+
+        return project
+
     }
 
     async getProjectByCode(code: string) {
