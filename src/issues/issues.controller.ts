@@ -19,7 +19,7 @@ export class IssuesController {
         return this.issueService.findAll();
     };
 
-    @Get(':id')
+    @Get('id/:id')
     findOne(@Param('id') id:string){
         return this.issueService.findOne(id);
     }
@@ -34,12 +34,12 @@ export class IssuesController {
         return this.issueService.createIssue(createIssueDto,user);
     }
 
-    @Patch(':id')
+    @Patch('id/:id')
     updateIssue(@Param('id') id:string,@Body() updateIssueDto: Partial<CreateIssue> ,@ActiveUser() user:UserActiveInterface){
         return this.issueService.updateIssue(id,updateIssueDto,user);
     }
 
-    @Delete(':id')
+    @Delete('id/:id')
     async deleteIssueById(@Param('id') id:string,@ActiveUser() user:UserActiveInterface){
         return this.issueService.deleteIssueById(id, user);
     }

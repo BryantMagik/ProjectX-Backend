@@ -23,7 +23,7 @@ export class CommentsController {
         return this.commentsService.create(createCommentDto, user );
     }
 
-    @Patch(':id')
+    @Patch('id/:id')
     update(@Param('id') id: string, @Body() updateCommentDto: Partial<CreateCommentDto>, @ActiveUser() user: UserActiveInterface) {
         return this.commentsService.update(id,updateCommentDto, user);
     }
@@ -33,7 +33,7 @@ export class CommentsController {
         return this.commentsService.findAll();
     }
     
-    @Get(':id')
+    @Get('id/:id')
     findOne(@Param('id') id: string) {
         return this.commentsService.findOne(id);
     }
@@ -53,7 +53,7 @@ export class CommentsController {
         return this.commentsService.findCommentsByIssue(issueId);
     }
 
-    @Delete(':id')
+    @Delete('id/:id')
     async deleteCommentById(@Param('id') id: string, @ActiveUser() user: UserActiveInterface) {
         return this.commentsService.deleteCommentById(id, user);
     }
