@@ -31,7 +31,7 @@ export class TasksService {
         await this.prisma.task.create({
             data: {
                 projectId: projectId,
-                code: taskDto.code,
+                name: taskDto.code,
                 summary: taskDto.summary,
                 description: taskDto.description,
                 priority: taskDto.priority,
@@ -55,6 +55,20 @@ export class TasksService {
         })
     }
 
+    async getTasksByProjectId(projectId: string) {
+        return await this.prisma.task.findMany({
+            where: {
+                projectId: projectId
+            },
+            include: {
+                comments: true,
+                creator: true,
+                project: true,
+                users: true,
+            }
+        })
+    }
+
     async getTasksById(id: string) {
         if (!id) throw new Error('Id no encontrada')
         return await this.prisma.task.findUnique({
@@ -69,12 +83,12 @@ export class TasksService {
         })
     }
 
-    async getTaskByCode(code: string) {
-        if (!code) throw new Error('Code no encontrado')
+    async getTaskByCode(name: string) {
+        if (!name) throw new Error('Code no encontrado')
 
         return await this.prisma.task.findUnique({
             where: {
-                code: code
+                name: name
             },
             include: {
                 project: true,
@@ -88,9 +102,9 @@ export class TasksService {
         return await this.prisma.task.findMany(
             {
                 where: {
-                    OR:[
+                    OR: [
                         {
-                            creatorId:user.id
+                            creatorId: user.id
                         },
                         {
                             users: {
@@ -111,24 +125,24 @@ export class TasksService {
         )
     }
 
-    async deleteTaskByCode(code: string, user: UserActiveInterface) {
-        if (!code) throw new BadRequestException('Codigo no encontrado')
-        const task = await this.getTaskByCode(code)
+    async deleteTaskByCode(name: string, user: UserActiveInterface) {
+        if (!name) throw new BadRequestException('Codigo no encontrado')
+        const task = await this.getTaskByCode(name)
         if (!task) throw new Error('Tarea no encontrada en la base de datos')
         if (task.creatorId !== user.id) {
             throw new UnauthorizedException('No tienes permiso para eliminar este proyecto', task.creatorId);
         }
         await this.prisma.task.delete({
-            where: { code: code }
+            where: { name: name }
         })
     }
 
-    async deleteTaskById(code: string, user: UserActiveInterface) {
-        if (!code) throw new Error('Nombre no encontrado')
+    async deleteTaskById(name: string, user: UserActiveInterface) {
+        if (!name) throw new Error('Nombre no encontrado')
 
         return await this.prisma.task.findFirst({
             where: {
-                code: code
+                name: name
             },
             include: {
                 project: true,

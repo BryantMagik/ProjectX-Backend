@@ -97,7 +97,7 @@ enum Project_Status {
 
 model Task {
   id          String        @id @default(cuid())
-  code        String        @unique
+  name        String        @unique
   summary     String
   description String
   priority    Task_priority

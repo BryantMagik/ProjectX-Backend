@@ -28,11 +28,17 @@ export class TasksController {
         return await this.tasksService.getTasks()
     }
 
-    @Get(':id')
+    @Get('project/:projectId')
+    async getTaskByProjectId(@Param('projectId') projectId: string) {
+        return this.tasksService.getTasksByProjectId(projectId)
+    }
+
+    @Get('id/:id')
     async getTaskById(@Param('id') id: string) {
         const task = await this.tasksService.getTasksById(id)
         return task
     }
+
     @Get('user/tasks')
     async getTaskByIdWhereId(@ActiveUser() user: UserActiveInterface) {
         const tasks = await this.tasksService.getTaskByIdWhereId(user)
