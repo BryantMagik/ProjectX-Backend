@@ -99,6 +99,7 @@ model Task {
   id          String        @id @default(cuid())
   name        String        @unique
   summary     String
+  dueDate     String?
   description String
   priority    Task_priority
   task_type   Task_type
