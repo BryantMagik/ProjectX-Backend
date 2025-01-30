@@ -113,6 +113,7 @@ model Task {
   updatedAt   DateTime      @updatedAt
   comments    Comment[]     @relation("TaskComments")
   subtasks    subtask[]     @relation("TaskSubtask")
+  dueTime     Int?          // Duración en minutos (por ejemplo, 180 = 3 horas)
 }
 
 enum Task_priority {

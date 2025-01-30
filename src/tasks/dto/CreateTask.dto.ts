@@ -1,5 +1,5 @@
 import { Task_priority, Task_status, Task_type } from "@prisma/client";
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, IsInt,Min } from "class-validator";
 
 export class TaskDto {
     @IsString()
@@ -29,6 +29,11 @@ export class TaskDto {
     @IsString()
     @IsOptional()
     dueDate: string
+
+    @IsInt()
+    @IsOptional()
+    @Min(60, { message: "dueTime debe ser un número positivo, dueTime debe ser al menos 60 minutos." })
+    dueTime?: number
 
 
 }
