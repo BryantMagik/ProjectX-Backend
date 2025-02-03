@@ -4,8 +4,9 @@ import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ProjectService } from './project.service';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
-import { ProjectDto } from './dto/CreateProject.dto';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
+import { CreateProjectDto } from './dto/CreateProject.dto';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
 
 
 @Auth(Role_User.USER)
@@ -18,7 +19,7 @@ export class ProjectController {
 
     @Post()
     @UsePipes(ValidationPipe)
-    createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+    createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: CreateProjectDto, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.createProject(workspaceId, projectDto, user);
     }
 
@@ -60,7 +61,7 @@ export class ProjectController {
 
     @Put('id/:id')
     @UsePipes(ValidationPipe)
-    updateProjectById(@Param('id') id: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+    updateProjectById(@Param('id') id: string, @Body() projectDto: UpdateProjectDto, @ActiveUser() user: UserActiveInterface) {
         console.log('Ruta PUT alcanzada', id);
         console.log('Recibiendo datos:', projectDto);
         return this.projectService.updateProjectById(id, projectDto, user);
