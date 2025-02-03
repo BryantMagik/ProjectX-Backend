@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProjectDto } from './dto/CreateProject.dto';
+import { CreateProjectDto } from './dto/CreateProject.dto';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UsersService } from 'src/users/users.service';
 import { Project_Status } from '@prisma/client';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
 
 @Injectable()
 export class ProjectService {
@@ -14,7 +15,7 @@ export class ProjectService {
         private readonly user: UsersService
     ) { }
 
-    async createProject(workspaceId: string, projectDto: ProjectDto, user: UserActiveInterface) {
+    async createProject(workspaceId: string, projectDto: CreateProjectDto, user: UserActiveInterface) {
 
         const existingWorkspace = await this.workspace.getWorkspaceById(workspaceId)
 
@@ -42,7 +43,7 @@ export class ProjectService {
 
         if (!dbUser) throw new Error('Usuario no encontrado en la DB')
 
-        const { code, name, description, type, status = Project_Status.ONGOING, participants } = projectDto
+        const { code, name, description, type, status = Project_Status.ONGOING, participants, image } = projectDto
 
         return await this.prisma.project.create({
             data: {
@@ -50,6 +51,7 @@ export class ProjectService {
                 name,
                 workspaceId: existingWorkspace.id,
                 description,
+                image,
                 type,
                 status,
                 authorId: userId,
@@ -193,7 +195,7 @@ export class ProjectService {
         })
     }
 
-    async updateProjectById(id: string, newProject: ProjectDto, user: UserActiveInterface) {
+    async updateProjectById(id: string, newProject: UpdateProjectDto, user: UserActiveInterface) {
         const userId = user.id
 
         if (!userId) throw new BadRequestException('No existe ningun usuario con sesión iniciada')
