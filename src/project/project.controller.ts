@@ -17,7 +17,7 @@ export class ProjectController {
         private readonly projectService: ProjectService,
     ) { }
 
-    @Post()
+    @Post(':workspaceId')
     @UsePipes(ValidationPipe)
     createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: CreateProjectDto, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.createProject(workspaceId, projectDto, user);

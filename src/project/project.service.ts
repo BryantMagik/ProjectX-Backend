@@ -43,7 +43,7 @@ export class ProjectService {
 
         if (!dbUser) throw new Error('Usuario no encontrado en la DB')
 
-        const { code, name, description, type, status = Project_Status.ONGOING, participants, image } = projectDto
+        const { code, name, description, type, status = Project_Status.ONGOING, image } = projectDto
 
         return await this.prisma.project.create({
             data: {
@@ -55,9 +55,6 @@ export class ProjectService {
                 type,
                 status,
                 authorId: userId,
-                participants: {
-                    connect: participants.map(userId => ({ id: userId })),
-                },
             },
         })
     }
