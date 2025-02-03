@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -59,9 +59,9 @@ export class ProjectController {
         return project
     }
 
-    @Put('id/:id')
+    @Patch('id/:id')
     @UsePipes(ValidationPipe)
-    updateProjectById(@Param('id') id: string, @Body() projectDto: UpdateProjectDto, @ActiveUser() user: UserActiveInterface) {
+    updateProjectById(@Param('id') id: string, @Body() projectDto: Partial<UpdateProjectDto>, @ActiveUser() user: UserActiveInterface) {
         console.log('Ruta PUT alcanzada', id);
         console.log('Recibiendo datos:', projectDto);
         return this.projectService.updateProjectById(id, projectDto, user);

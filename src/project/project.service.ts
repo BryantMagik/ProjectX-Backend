@@ -195,7 +195,7 @@ export class ProjectService {
         })
     }
 
-    async updateProjectById(id: string, newProject: UpdateProjectDto, user: UserActiveInterface) {
+    async updateProjectById(id: string, newProject: Partial<UpdateProjectDto>, user: UserActiveInterface) {
         const userId = user.id
 
         if (!userId) throw new BadRequestException('No existe ningun usuario con sesión iniciada')
