@@ -1,11 +1,12 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Role_User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ProjectService } from './project.service';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
-import { ProjectDto } from './dto/CreateProject.dto';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
+import { CreateProjectDto } from './dto/CreateProject.dto';
+import { UpdateProjectDto } from './dto/UpdateProject.dto';
 
 
 @Auth(Role_User.USER)
@@ -16,9 +17,9 @@ export class ProjectController {
         private readonly projectService: ProjectService,
     ) { }
 
-    @Post()
+    @Post(':workspaceId')
     @UsePipes(ValidationPipe)
-    createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+    createProject(@Param('workspaceId') workspaceId: string, @Body() projectDto: CreateProjectDto, @ActiveUser() user: UserActiveInterface) {
         return this.projectService.createProject(workspaceId, projectDto, user);
     }
 
@@ -58,9 +59,9 @@ export class ProjectController {
         return project
     }
 
-    @Put('id/:id')
+    @Patch('id/:id')
     @UsePipes(ValidationPipe)
-    updateProjectById(@Param('id') id: string, @Body() projectDto: ProjectDto, @ActiveUser() user: UserActiveInterface) {
+    updateProjectById(@Param('id') id: string, @Body() projectDto: Partial<UpdateProjectDto>, @ActiveUser() user: UserActiveInterface) {
         console.log('Ruta PUT alcanzada', id);
         console.log('Recibiendo datos:', projectDto);
         return this.projectService.updateProjectById(id, projectDto, user);

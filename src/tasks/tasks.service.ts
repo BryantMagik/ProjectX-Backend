@@ -37,7 +37,8 @@ export class TasksService {
                 priority: taskDto.priority,
                 task_type: taskDto.task_type,
                 status: taskDto.task_status,
-                creatorId: userId
+                creatorId: userId,
+                dueTime: taskDto.dueTime ?? null
             }
         })
         return {
