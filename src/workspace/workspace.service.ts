@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWorkSpaceDto } from './dto/CreateWorkspace.dto';
@@ -6,142 +10,162 @@ import { UpdateWorkspaceDto } from './dto/UpdateWorkspace.dto';
 
 @Injectable()
 export class WorkspaceService {
-    constructor(
-        private readonly prisma: PrismaService,
-    ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async createWorkspace(workspaceDto: CreateWorkSpaceDto, user: UserActiveInterface) {
-        const userId = user.id
-        if (!userId) {
-            throw new BadRequestException('No existe ningun usuario con sesión iniciada')
-        }
-
-        const existingWorkspace = await this.prisma.workspace.findFirst({
-            where: {
-                name: workspaceDto.name
-            }
-        })
-
-        if (existingWorkspace) {
-            throw new BadRequestException('Ya existe un Workspace con este nombre');
-        }
-
-        const workspace = await this.prisma.workspace.create({
-            data: {
-                name: workspaceDto.name,
-                image: workspaceDto.image,
-                description: workspaceDto.description,
-                ownerId: userId
-            }
-        })
-        return { message: 'Workspace creado con éxito', workspace: workspace };
+  async createWorkspace(
+    workspaceDto: CreateWorkSpaceDto,
+    user: UserActiveInterface,
+  ) {
+    const userId = user.id;
+    if (!userId) {
+      throw new BadRequestException(
+        'No existe ningun usuario con sesión iniciada',
+      );
     }
 
-    async getWorkspaces() {
-        return await this.prisma.workspace.findMany(
-            {
-                include: {
-                    owner: true,
-                    users: true,
-                    projects: true
-                }
-            }
-        )
+    const existingWorkspace = await this.prisma.workspace.findFirst({
+      where: {
+        name: workspaceDto.name,
+      },
+    });
+
+    if (existingWorkspace) {
+      throw new BadRequestException('Ya existe un Workspace con este nombre');
     }
 
-    async getWorkspaceById(workspaceId: string) {
-        if (!workspaceId) throw new Error('Id no encontrado')
+    const workspace = await this.prisma.workspace.create({
+      data: {
+        name: workspaceDto.name,
+        image: workspaceDto.image,
+        description: workspaceDto.description,
+        ownerId: userId,
+      },
+    });
+    return { message: 'Workspace creado con éxito', workspace: workspace };
+  }
 
-        return await this.prisma.workspace.findUnique({
-            where: {
-                id: workspaceId
+  async getWorkspaces() {
+    return await this.prisma.workspace.findMany({
+      include: {
+        owner: true,
+        users: true,
+        projects: true,
+      },
+    });
+  }
+
+  async getWorkspaceById(workspaceId: string) {
+    if (!workspaceId) throw new Error('Id no encontrado');
+
+    return await this.prisma.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+      include: {
+        owner: true,
+        users: true,
+        projects: true,
+      },
+    });
+  }
+
+  async getWorkspaceByIdWhereId(user: UserActiveInterface) {
+    return await this.prisma.workspace.findMany({
+      where: {
+        OR: [
+          {
+            ownerId: user.id,
+          },
+          {
+            users: {
+              some: {
+                id: user.id,
+              },
             },
-            include: {
-                owner: true,
-                users: true,
-                projects: true
-            }
-        })
+          },
+        ],
+      },
+      include: {
+        users: true,
+        owner: true,
+        projects: true,
+      },
+    });
+  }
+
+  async updateWorkspace(
+    workspaceId: string,
+    workspaceDto: UpdateWorkspaceDto,
+    user: UserActiveInterface,
+  ) {
+    const userId = user.id;
+
+    if (!userId)
+      throw new BadRequestException(
+        'No existe ningun usuario con sesión iniciada',
+      );
+
+    const findWorkspace = await this.getWorkspaceById(workspaceId);
+
+    if (!findWorkspace)
+      throw new BadRequestException('No existe ningun workspace con este id');
+
+    if (findWorkspace.ownerId !== userId)
+      throw new BadRequestException(
+        'No tienes permiso para editar este Workspace',
+      );
+
+    const hasChanges = Object.keys(workspaceDto).length > 0;
+
+    if (!hasChanges) {
+      throw new BadRequestException(
+        'No se proporcionaron cambios para actualizar',
+      );
     }
 
-    async getWorkspaceByIdWhereId(user: UserActiveInterface) {
-        return await this.prisma.workspace.findMany(
-            {
-                where: {
-                    OR: [
-                        {
-                            ownerId: user.id
-                        },
-                        {
-                            users: {
-                                some: {
-                                    id: user.id
-                                }
-                            }
-                        }
-                    ]
-
-                },
-                include: {
-                    users: true,
-                    owner: true,
-                    projects: true
-                }
-            }
-        )
+    try {
+      return this.prisma.workspace.update({
+        where: {
+          id: workspaceId,
+        },
+        data: {
+          ...workspaceDto,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Ocurrió un error al actualizar el Workspace',
+      );
     }
+  }
 
-    async updateWorkspace(workspaceId: string, workspaceDto: UpdateWorkspaceDto, user: UserActiveInterface) {
-        const userId = user.id
+  async deleteWorkspace(id: string, user: UserActiveInterface) {
+    const userId = user.id;
+    if (!userId)
+      throw new BadRequestException(
+        'No existe ningun usuario con sesión iniciada',
+      );
 
-        if (!userId) throw new BadRequestException('No existe ningun usuario con sesión iniciada')
+    const workspace = await this.getWorkspaceById(id);
 
-        const findWorkspace = await this.getWorkspaceById(workspaceId)
+    if (!workspace)
+      throw new BadRequestException('No existe ningun workspace con este id');
 
-        if (!findWorkspace) throw new BadRequestException('No existe ningun workspace con este id')
+    if (workspace.ownerId !== userId)
+      throw new BadRequestException(
+        'No tienes permiso para eliminar este workspace',
+      );
 
-        if (findWorkspace.ownerId !== userId) throw new BadRequestException('No tienes permiso para editar este Workspace')
-
-        const hasChanges = Object.keys(workspaceDto).length > 0
-
-        if (!hasChanges) {
-            throw new BadRequestException('No se proporcionaron cambios para actualizar')
-        }
-
-        try {
-            return this.prisma.workspace.update({
-                where: {
-                    id: workspaceId
-                },
-                data: {
-                    ...workspaceDto
-                }
-            })
-
-        } catch (error) {
-            throw new InternalServerErrorException('Ocurrió un error al actualizar el Workspace');
-        }
-
+    try {
+      return this.prisma.workspace.delete({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Ocurrió un error al eliminar el Workspace',
+      );
     }
-
-    async deleteWorkspace(id: string, user: UserActiveInterface) {
-        const userId = user.id
-        if (!userId) throw new BadRequestException('No existe ningun usuario con sesión iniciada')
-
-        const workspace = await this.getWorkspaceById(id)
-
-        if (!workspace) throw new BadRequestException('No existe ningun workspace con este id')
-
-        if (workspace.ownerId !== userId) throw new BadRequestException('No tienes permiso para eliminar este workspace')
-
-        try {
-            return this.prisma.workspace.delete({
-                where: {
-                    id: id
-                }
-            })
-        } catch (error) {
-            throw new InternalServerErrorException('Ocurrió un error al eliminar el Workspace');
-        }
-    }
+  }
 }

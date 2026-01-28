@@ -12,5 +12,4 @@ export class CreateCommentDto {
   @ValidateIf((o) => !o.taskId)
   @IsString()
   issueId?: string;
-
 }

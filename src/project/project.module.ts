@@ -7,9 +7,14 @@ import { UsersModule } from 'src/users/users.module';
 import { WorkspaceModule } from 'src/workspace/workspace.module';
 
 @Module({
-    imports: [PrismaModule, forwardRef(() => AuthModule),forwardRef(() => UsersModule),WorkspaceModule],
-    providers: [ProjectService],
-    controllers: [ProjectController],
-    exports: [ProjectService]
+  imports: [
+    PrismaModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
+    WorkspaceModule,
+  ],
+  providers: [ProjectService],
+  controllers: [ProjectController],
+  exports: [ProjectService],
 })
-export class ProjectModule { }
+export class ProjectModule {}

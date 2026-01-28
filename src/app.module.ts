@@ -34,7 +34,19 @@ import { WorkspaceModule } from './workspace/workspace.module';
     SubtasksModule,
     WorkspaceModule,
   ],
-  controllers: [AppController, CommentsController, IssuesController, SubtasksController, WorkspaceController],
-  providers: [AppService, CommentsService, IssuesService, SubtasksService, WorkspaceService],
+  controllers: [
+    AppController,
+    CommentsController,
+    IssuesController,
+    SubtasksController,
+    WorkspaceController,
+  ],
+  providers: [
+    AppService,
+    CommentsService,
+    IssuesService,
+    SubtasksService,
+    WorkspaceService,
+  ],
 })
-export class AppModule { }
+export class AppModule {}

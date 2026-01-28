@@ -7,9 +7,14 @@ import { TasksService } from './tasks.service';
 import { ProjectModule } from 'src/project/project.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => AuthModule),forwardRef(() => UsersModule), ProjectModule],
-  providers:[TasksService],
+  imports: [
+    PrismaModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
+    ProjectModule,
+  ],
+  providers: [TasksService],
   controllers: [TasksController],
-  exports:[TasksService]
+  exports: [TasksService],
 })
 export class TasksModule {}

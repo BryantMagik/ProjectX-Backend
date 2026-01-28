@@ -4,72 +4,68 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        private prisma: PrismaService,
-    ) { }
+  constructor(private prisma: PrismaService) {}
 
-    async createUser(data: Prisma.UserCreateInput) {
-        return await this.prisma.user.create({
-            data: {
-                ...data,
-            }
-        })
-        
-    }
+  async createUser(data: Prisma.UserCreateInput) {
+    return await this.prisma.user.create({
+      data: {
+        ...data,
+      },
+    });
+  }
 
-    getUsers() {
-        return this.prisma.user.findMany({
-            select: {
-                id: true,
-                email: true,
-                first_name: true,
-                last_name: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-            },
-        })
-    }
+  getUsers() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 
-    getUserById(id: string) {
-        if (!id) throw new Error('Id no encontrado')
-        return this.prisma.user.findUnique({
-            where: {
-                id: id
-            }
-        })
-    }
+  getUserById(id: string) {
+    if (!id) throw new Error('Id no encontrado');
+    return this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
 
-    getUserByEmail(email: string) {
-        return this.prisma.user.findUnique({
-            where: {
-                email: email
-            }
-        })
-    }
+  getUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  }
 
-    async deleteUserById(id: string) {
-        const findUser = await this.getUserById(id)
-        if (!findUser) throw new BadRequestException('Usuario no encontrado')
+  async deleteUserById(id: string) {
+    const findUser = await this.getUserById(id);
+    if (!findUser) throw new BadRequestException('Usuario no encontrado');
 
-        return this.prisma.user.delete({
-            where: {
-                id: id
-            }
-        })
-    }
+    return this.prisma.user.delete({
+      where: {
+        id: id,
+      },
+    });
+  }
 
-    async updateUserById(id: string, data: Prisma.UserUpdateInput) {
-        const findUser = await this.getUserById(id)
-        if (!findUser) throw new BadRequestException('Usuario no encontrado')
-        return this.prisma.user.update({
-            where: {
-                id: id
-            },
-            data: {
-                ...data
-            }
-        })
-    }
-
+  async updateUserById(id: string, data: Prisma.UserUpdateInput) {
+    const findUser = await this.getUserById(id);
+    if (!findUser) throw new BadRequestException('Usuario no encontrado');
+    return this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...data,
+      },
+    });
+  }
 }

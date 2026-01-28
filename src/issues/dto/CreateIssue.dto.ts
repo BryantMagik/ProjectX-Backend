@@ -1,35 +1,42 @@
-import { IsString,IsNotEmpty,IsOptional,IsEnum,isArray, IsArray } from "class-validator";
-import { IssueType,Task_priority,IssueStatus } from "@prisma/client";
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  isArray,
+  IsArray,
+} from 'class-validator';
+import { IssueType, Task_priority, IssueStatus } from '@prisma/client';
 
-export class CreateIssue{
-    @IsString()
-    @IsNotEmpty()
-    code: string;
+export class CreateIssue {
+  @IsString()
+  @IsNotEmpty()
+  code: string;
 
-    @IsEnum(IssueType)
-    @IsNotEmpty()
-    type: IssueType;
+  @IsEnum(IssueType)
+  @IsNotEmpty()
+  type: IssueType;
 
-    @IsString()
-    @IsNotEmpty()
-    summary: string;
+  @IsString()
+  @IsNotEmpty()
+  summary: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsEnum(Task_priority)
-    @IsNotEmpty()
-    priority: Task_priority;
+  @IsEnum(Task_priority)
+  @IsNotEmpty()
+  priority: Task_priority;
 
-    @IsString()
-    @IsNotEmpty()
-    projectId: string;
+  @IsString()
+  @IsNotEmpty()
+  projectId: string;
 
-    @IsEnum(IssueStatus)
-    @IsNotEmpty()
-    status: IssueStatus;
+  @IsEnum(IssueStatus)
+  @IsNotEmpty()
+  status: IssueStatus;
 
-    @IsArray()
-    assignedTo: string[]
+  @IsArray()
+  assignedTo: string[];
 }

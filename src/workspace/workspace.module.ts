@@ -6,9 +6,13 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
 
 @Module({
-    imports: [PrismaModule, forwardRef(() => AuthModule), forwardRef(() => UsersModule)],
-    providers: [WorkspaceService],
-    controllers: [WorkspaceController],
-    exports: [WorkspaceService]
+  imports: [
+    PrismaModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => UsersModule),
+  ],
+  providers: [WorkspaceService],
+  controllers: [WorkspaceController],
+  exports: [WorkspaceService],
 })
-export class WorkspaceModule { }
+export class WorkspaceModule {}

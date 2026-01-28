@@ -5,23 +5,19 @@ import { Role_User } from '@prisma/client';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
 
-  constructor(private readonly reflector: Reflector) { }
-
-  canActivate(
-    context: ExecutionContext,
-  ): boolean {
-
+  canActivate(context: ExecutionContext): boolean {
     const role = this.reflector.getAllAndOverride<Role_User>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
-    ])
+    ]);
 
-    if (!role) return true
-    const { user } = context.switchToHttp().getRequest()
+    if (!role) return true;
+    const { user } = context.switchToHttp().getRequest();
 
-    if (user.role === Role_User.ADMIN) return true
+    if (user.role === Role_User.ADMIN) return true;
 
-    return role === user.role
+    return role === user.role;
   }
 }

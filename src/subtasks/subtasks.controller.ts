@@ -1,4 +1,13 @@
-import { Controller,Get,Post,Param,Patch,Delete, Body,BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Patch,
+  Delete,
+  Body,
+  BadRequestException,
+} from '@nestjs/common';
 import { SubtasksService } from './subtasks.service';
 import { CreateSubtaskDto } from './dto/CreateSubtask.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -9,51 +18,57 @@ import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 
 @Auth(Role_User.USER)
-@ApiTags("Subtasks")
+@ApiTags('Subtasks')
 @Controller('subtasks')
 export class SubtasksController {
-    constructor (private readonly subtaskService:SubtasksService,private readonly userService:UsersService){}
+  constructor(
+    private readonly subtaskService: SubtasksService,
+    private readonly userService: UsersService,
+  ) {}
 
-    @Get()
-    async findAll(){
-        return await this.subtaskService.findAll();
+  @Get()
+  async findAll() {
+    return await this.subtaskService.findAll();
+  }
+
+  @Get('id/:id')
+  async findOne(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Subtask ID is required');
     }
+    return await this.subtaskService.findOne(id);
+  }
 
-    @Get('id/:id')
-    async findOne(@Param('id') id: string){
-        if (!id) {
-            throw new BadRequestException('Subtask ID is required');
-        }
-        return await this.subtaskService.findOne(id);
+  @Get('user/subtasks')
+  async getSubtasksByUser(@ActiveUser() user: UserActiveInterface) {
+    return await this.subtaskService.getSubtasksByUser(user);
+  }
+
+  @Post()
+  async create(
+    @Body() createSubtaskDto: CreateSubtaskDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return await this.subtaskService.create(createSubtaskDto, user);
+  }
+
+  @Patch('id/:id')
+  async update(
+    @Param('id') id: string,
+    @Body() createSubtaskDto: Partial<CreateSubtaskDto>,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    if (!id) {
+      throw new BadRequestException('Subtask ID is required');
     }
+    return await this.subtaskService.update(id, createSubtaskDto, user);
+  }
 
-    @Get('user/subtasks')
-    async getSubtasksByUser(@ActiveUser() user: UserActiveInterface) {
-        return await this.subtaskService.getSubtasksByUser(user);
+  @Delete('id/:id')
+  async deleteSubtaskbyid(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Subtask ID is required');
     }
-
-    @Post()
-    async create(@Body()createSubtaskDto:CreateSubtaskDto,@ActiveUser()user: UserActiveInterface){
-        return await this.subtaskService.create(createSubtaskDto,user);
-    }
-
-    @Patch('id/:id')
-    async update(
-        @Param('id') id: string,
-        @Body()createSubtaskDto:Partial<CreateSubtaskDto>,@ActiveUser()user:UserActiveInterface){
-            if (!id) {
-                throw new BadRequestException('Subtask ID is required');
-            }        
-            return await this.subtaskService.update(id,createSubtaskDto,user);
-    }
-
-    @Delete('id/:id')
-    async deleteSubtaskbyid(@Param('id') id:string){
-        if (!id) {
-            throw new BadRequestException('Subtask ID is required');
-        }
-        return await this.subtaskService.deleteSubtaskbyid(id);
-    }
-    
-
+    return await this.subtaskService.deleteSubtaskbyid(id);
+  }
 }
