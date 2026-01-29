@@ -19,10 +19,12 @@ model Workspace {
   image               String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-  ownerId             String
-  owner               User         @relation("WorkspaceOwner", fields: [ownerId], references: [id])
-  users               User[]       @relation("WorkspaceMembers")
+  creatorId           String?   @default(cuid())
+  creator             User?     @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  owners              User[]   @relation("WorkspaceOwners")
+  users               User[]   @relation("WorkspaceMembers")
   projects            Project[]    @relation("WorkspaceProjects")
+  invitations         Invitation[] @relation("WorkspaceInvitations")
 }
 
 model User {
@@ -44,8 +46,10 @@ model User {
   issues              Issue[]   @relation("reporterissue")
   subtasks            subtask[] @relation("Subtasksauthor")
   assignedtoIssues    Issue[]   @relation("Assignedto")
+  workspacesAsCreator Workspace[] @relation("WorkspaceCreator")
+  workspacesAsOwner   Workspace[] @relation("WorkspaceOwners")
   workspacesAsMember  Workspace[] @relation("WorkspaceMembers")
-  workspacesAsOwner   Workspace[] @relation("WorkspaceOwner")
+  createdInvitations  Invitation[] @relation("InvitationAuthor")
 }
 
 enum UserType {
@@ -189,4 +193,19 @@ model Issue {
   updatedAt   DateTime      @updatedAt
   comments    Comment[]     @relation("IssueComments")
   assignedTo  User[]        @relation("Assignedto")
+}
+
+
+model Invitation {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  isActive    Boolean   @default(true)
+  maxUses     Int?      
+  uses        Int       @default(0)
+  expiresAt   DateTime? 
+  createdAt   DateTime  @default(now())
+  workspaceId String
+  workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id])
+  authorId    String
+  author      User      @relation("InvitationAuthor", fields: [authorId], references: [id])
 }
