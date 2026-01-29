@@ -2,16 +2,20 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './swagger/swagger.setup';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    bufferLogs: true,
   });
 
-  console.log('Aplicación iniciada...');
+  const logger = app.get(Logger);
+  app.useLogger(logger);
+
+  logger.log('Aplicación iniciada');
 
   app.setGlobalPrefix('api/v1');
-  console.log('Prefijo global establecido a /api/v1');
+  logger.log('Prefijo global establecido a /api/v1');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -30,9 +34,10 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization',
   });
   setupSwagger(app);
-  console.log('Swagger configurado');
+  logger.log('Swagger configurado');
 
-  await app.listen(parseInt(process.env.PORT) || 3000);
-  console.log('Servidor escuchando en el puerto', process.env.PORT || 3000);
+  const port = parseInt(process.env.PORT) || 3000;
+  await app.listen(port);
+  logger.log(`Servidor escuchando en el puerto ${port}`);
 }
 bootstrap();

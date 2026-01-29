@@ -19,11 +19,13 @@ import { SubtasksModule } from './subtasks/subtasks.module';
 import { WorkspaceService } from './workspace/workspace.service';
 import { WorkspaceController } from './workspace/workspace.controller';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { LoggerModule } from './logger/logger.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LoggerModule,
     PrismaModule,
     UsersModule,
     AuthModule,
