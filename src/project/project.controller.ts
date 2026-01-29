@@ -80,8 +80,6 @@ export class ProjectController {
     @Body() projectDto: Partial<UpdateProjectDto>,
     @ActiveUser() user: UserActiveInterface,
   ) {
-    console.log('Ruta PUT alcanzada', id);
-    console.log('Recibiendo datos:', projectDto);
     return this.projectService.updateProjectById(id, projectDto, user);
   }
 
