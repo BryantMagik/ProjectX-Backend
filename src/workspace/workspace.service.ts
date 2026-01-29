@@ -38,7 +38,7 @@ export class WorkspaceService {
         name: workspaceDto.name,
         image: workspaceDto.image,
         description: workspaceDto.description,
-        ownerId: userId,
+        creatorId: userId,
       },
     });
     return { message: 'Workspace creado con éxito', workspace: workspace };
@@ -47,7 +47,7 @@ export class WorkspaceService {
   async getWorkspaces() {
     return await this.prisma.workspace.findMany({
       include: {
-        owner: true,
+        creator: true,
         users: true,
         projects: true,
       },
@@ -62,7 +62,7 @@ export class WorkspaceService {
         id: workspaceId,
       },
       include: {
-        owner: true,
+        creator: true,
         users: true,
         projects: true,
       },
@@ -74,7 +74,7 @@ export class WorkspaceService {
       where: {
         OR: [
           {
-            ownerId: user.id,
+            creatorId: user.id,
           },
           {
             users: {
@@ -87,7 +87,7 @@ export class WorkspaceService {
       },
       include: {
         users: true,
-        owner: true,
+        creator: true,
         projects: true,
       },
     });
@@ -110,7 +110,7 @@ export class WorkspaceService {
     if (!findWorkspace)
       throw new BadRequestException('No existe ningun workspace con este id');
 
-    if (findWorkspace.ownerId !== userId)
+    if (findWorkspace.creatorId !== userId)
       throw new BadRequestException(
         'No tienes permiso para editar este Workspace',
       );
@@ -151,7 +151,7 @@ export class WorkspaceService {
     if (!workspace)
       throw new BadRequestException('No existe ningun workspace con este id');
 
-    if (workspace.ownerId !== userId)
+    if (workspace.creatorId !== userId)
       throw new BadRequestException(
         'No tienes permiso para eliminar este workspace',
       );
