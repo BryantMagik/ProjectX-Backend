@@ -34,6 +34,7 @@ model User {
   profile_picture     String?
   last_name           String
   password            String
+  refreshToken        String?
   type_user           UserType  @default(TRAINEE)
   role                Role_User @default(USER)
   createdAt           DateTime  @default(now())
