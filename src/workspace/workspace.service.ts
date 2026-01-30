@@ -48,6 +48,7 @@ export class WorkspaceService {
     return await this.prisma.workspace.findMany({
       include: {
         creator: true,
+        owners: true,
         users: true,
         projects: true,
       },
@@ -63,6 +64,7 @@ export class WorkspaceService {
       },
       include: {
         creator: true,
+        owners: true,
         users: true,
         projects: true,
       },
