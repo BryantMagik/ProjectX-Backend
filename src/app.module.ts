@@ -20,6 +20,7 @@ import { WorkspaceService } from './workspace/workspace.service';
 import { WorkspaceController } from './workspace/workspace.controller';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { LoggerModule } from './logger/logger.module';
+import { InvitationsModule } from './invitations/invitations.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,6 +36,7 @@ import { LoggerModule } from './logger/logger.module';
     IssuesModule,
     SubtasksModule,
     WorkspaceModule,
+    InvitationsModule,
   ],
   controllers: [
     AppController,
