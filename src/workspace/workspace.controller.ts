@@ -121,4 +121,13 @@ export class WorkspaceController {
   ) {
     return this.workspaceService.deactivateInvitation(invitationId, user);
   }
+
+  @Delete(':workspaceId/members/:userId')
+  async removeMember(
+    @Param('workspaceId') workspaceId: string,
+    @Param('userId') userId: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.removeMemberFromWorkspace(workspaceId, userId, user);
+  }
 }

@@ -395,4 +395,61 @@ export class WorkspaceService {
 
     return { message: 'Invitación desactivada exitosamente' };
   }
+
+  async removeMemberFromWorkspace(
+    workspaceId: string,
+    userId: string,
+    user: UserActiveInterface,
+  ) {
+    const workspace = await this.getWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException('Workspace no encontrado');
+    }
+
+    // Solo el creador puede remover miembros
+    if (workspace.creatorId !== user.id) {
+      throw new ForbiddenException(
+        'Solo el creador del workspace puede remover miembros',
+      );
+    }
+
+    // No se puede remover al creador
+    if (userId === workspace.creatorId) {
+      throw new BadRequestException('No puedes remover al creador del workspace');
+    }
+
+    // Verificar si el usuario es miembro
+    const isMember = workspace.users.some((u) => u.id === userId);
+    const isOwner = workspace.owners.some((o) => o.id === userId);
+
+    if (!isMember && !isOwner) {
+      throw new BadRequestException('Este usuario no es miembro del workspace');
+    }
+
+    // Remover usuario de la lista de miembros o owners
+    if (isMember) {
+      await this.prisma.workspace.update({
+        where: { id: workspaceId },
+        data: {
+          users: {
+            disconnect: { id: userId },
+          },
+        },
+      });
+    }
+
+    if (isOwner) {
+      await this.prisma.workspace.update({
+        where: { id: workspaceId },
+        data: {
+          owners: {
+            disconnect: { id: userId },
+          },
+        },
+      });
+    }
+
+    return { message: 'Miembro removido del workspace exitosamente' };
+  }
 }

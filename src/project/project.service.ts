@@ -99,18 +99,34 @@ export class ProjectService {
   }
 
   async getProjectByIdWhereId(user: UserActiveInterface) {
-    return await this.prisma.project.findMany({
+    // Primero obtenemos los workspaces donde el usuario es miembro
+    const userWorkspaces = await this.prisma.workspace.findMany({
       where: {
         OR: [
+          { creatorId: user.id },
+          { owners: { some: { id: user.id } } },
+          { users: { some: { id: user.id } } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const workspaceIds = userWorkspaces.map(w => w.id);
+
+    // Luego filtramos proyectos que pertenezcan a esos workspaces
+    return await this.prisma.project.findMany({
+      where: {
+        AND: [
           {
-            authorId: user.id,
+            workspaceId: {
+              in: workspaceIds,
+            },
           },
           {
-            participants: {
-              some: {
-                id: user.id,
-              },
-            },
+            OR: [
+              { authorId: user.id },
+              { participants: { some: { id: user.id } } },
+            ],
           },
         ],
       },
