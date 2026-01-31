@@ -10,7 +10,7 @@ import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 
 @Auth(Role_User.USER)
-@ApiTags('Workspace')
+@ApiTags('invitations')
 @Controller('invitations')
 export class InvitationsController {
   constructor(
@@ -37,12 +37,12 @@ export class InvitationsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.invitationsService.findOne(+id);
+    return this.invitationsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateInvitationDto: UpdateInvitationDto) {
-    return this.invitationsService.update(+id, updateInvitationDto);
+    return this.invitationsService.update(id, updateInvitationDto);
   }
 
   @Delete(':id')

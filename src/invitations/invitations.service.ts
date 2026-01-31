@@ -101,11 +101,11 @@ export class InvitationsService {
     return `This action returns all invitations`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} invitation`;
   }
 
-  update(id: number, updateInvitationDto: UpdateInvitationDto) {
+  update(id: string, updateInvitationDto: UpdateInvitationDto) {
     return `This action updates a #${id} invitation`;
   }
 
