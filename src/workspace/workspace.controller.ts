@@ -17,6 +17,8 @@ import { WorkspaceService } from './workspace.service';
 import { CreateWorkSpaceDto } from './dto/CreateWorkspace.dto';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
+import { CreateInvitationDto } from './dto/CreateInvitation.dto';
+import { JoinWorkspaceDto } from './dto/JoinWorkspace.dto';
 
 @Auth(Role_User.USER)
 @ApiTags('Workspace')
@@ -70,5 +72,53 @@ export class WorkspaceController {
     @ActiveUser() user: UserActiveInterface,
   ) {
     return this.workspaceService.deleteWorkspace(id, user);
+  }
+
+  // Invitation endpoints
+  @Post(':workspaceId/invitations')
+  @UsePipes(ValidationPipe)
+  async createInvitation(
+    @Param('workspaceId') workspaceId: string,
+    @Body() invitationDto: CreateInvitationDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.createInvitation(
+      workspaceId,
+      invitationDto,
+      user,
+    );
+  }
+
+  @Get(':workspaceId/invitations')
+  async getWorkspaceInvitations(
+    @Param('workspaceId') workspaceId: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.getWorkspaceInvitations(workspaceId, user);
+  }
+
+  @Post('join')
+  @UsePipes(ValidationPipe)
+  async joinWorkspaceByToken(
+    @Body() joinDto: JoinWorkspaceDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.joinWorkspaceByToken(joinDto.token, user);
+  }
+
+  @Get(':workspaceId/members')
+  async getWorkspaceMembers(
+    @Param('workspaceId') workspaceId: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.getWorkspaceMembers(workspaceId, user);
+  }
+
+  @Patch('invitations/:invitationId/deactivate')
+  async deactivateInvitation(
+    @Param('invitationId') invitationId: string,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.workspaceService.deactivateInvitation(invitationId, user);
   }
 }

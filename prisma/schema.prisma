@@ -133,6 +133,7 @@ model Issue {
 model Invitation {
   id          String    @id @default(cuid())
   code        String    @unique
+  token       String    @unique @default(cuid())
   isActive    Boolean   @default(true)
   maxUses     Int?
   uses        Int       @default(0)
