@@ -4,6 +4,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UsersModule } from 'src/users/users.module';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
+import { WorkspaceUploadController } from './workspace-upload.controller';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { WorkspaceController } from './workspace.controller';
     forwardRef(() => UsersModule),
   ],
   providers: [WorkspaceService],
-  controllers: [WorkspaceController],
+  controllers: [WorkspaceController, WorkspaceUploadController],
   exports: [WorkspaceService],
 })
 export class WorkspaceModule {}
