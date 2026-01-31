@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,44 +7,141 @@ datasource db {
 }
 
 model Workspace {
-  id                  String   @id @default(cuid())
-  name                String
-  description         String?
-  image               String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  creatorId           String?   @default(cuid())
-  creator             User?     @relation("WorkspaceCreator", fields: [creatorId], references: [id])
-  owners              User[]   @relation("WorkspaceOwners")
-  users               User[]   @relation("WorkspaceMembers")
-  projects            Project[]    @relation("WorkspaceProjects")
-  invitations         Invitation[] @relation("WorkspaceInvitations")
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  creatorId   String?      @default(cuid())
+  invitations Invitation[] @relation("WorkspaceInvitations")
+  projects    Project[]    @relation("WorkspaceProjects")
+  creator     User?        @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  users       User[]       @relation("WorkspaceMembers")
+  owners      User[]       @relation("WorkspaceOwners")
 }
 
 model User {
-  id                  String    @id @default(cuid())
-  email               String    @unique
+  id                  String       @id @default(cuid())
+  email               String       @unique
   first_name          String
   profile_picture     String?
   last_name           String
   password            String
+  type_user           UserType     @default(TRAINEE)
+  role                Role_User    @default(USER)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
   refreshToken        String?
-  type_user           UserType  @default(TRAINEE)
-  role                Role_User @default(USER)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  createdTasks        Task[]    @relation("CreatedTasks")
-  assignedTasks       Task[]    @relation("AssignedTasks")
-  participantProjects Project[] @relation("ProjectParticipants")
-  authoredProjects    Project[] @relation("ProjectAuthors")
-  comments            Comment[] @relation
-  issues              Issue[]   @relation("reporterissue")
-  subtasks            subtask[] @relation("Subtasksauthor")
-  assignedtoIssues    Issue[]   @relation("Assignedto")
-  workspacesAsCreator Workspace[] @relation("WorkspaceCreator")
-  workspacesAsOwner   Workspace[] @relation("WorkspaceOwners")
-  workspacesAsMember  Workspace[] @relation("WorkspaceMembers")
+  comments            Comment[]
   createdInvitations  Invitation[] @relation("InvitationAuthor")
+  issues              Issue[]      @relation("reporterissue")
+  authoredProjects    Project[]    @relation("ProjectAuthors")
+  createdTasks        Task[]       @relation("CreatedTasks")
+  workspacesAsCreator Workspace[]  @relation("WorkspaceCreator")
+  subtasks            subtask[]    @relation("Subtasksauthor")
+  assignedTasks       Task[]       @relation("AssignedTasks")
+  assignedtoIssues    Issue[]      @relation("Assignedto")
+  participantProjects Project[]    @relation("ProjectParticipants")
+  workspacesAsMember  Workspace[]  @relation("WorkspaceMembers")
+  workspacesAsOwner   Workspace[]  @relation("WorkspaceOwners")
+}
+
+model Project {
+  id           String          @id @default(cuid())
+  code         String          @unique
+  name         String
+  description  String?
+  type         Project_Type
+  status       Project_Status? @default(ONGOING)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  authorId     String
+  image        String?
+  workspaceId  String
+  issues       Issue[]
+  author       User            @relation("ProjectAuthors", fields: [authorId], references: [id])
+  workspace    Workspace       @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
+  tasks        Task[]          @relation("ProjectTasks")
+  participants User[]          @relation("ProjectParticipants")
+}
+
+model Task {
+  id          String        @id @default(cuid())
+  summary     String
+  description String
+  priority    Task_priority
+  task_type   Task_type
+  status      Task_status
+  projectId   String
+  creatorId   String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  name        String        @unique
+  dueTime     Int?
+  comments    Comment[]     @relation("TaskComments")
+  creator     User          @relation("CreatedTasks", fields: [creatorId], references: [id])
+  project     Project       @relation("ProjectTasks", fields: [projectId], references: [id])
+  subtasks    subtask[]     @relation("TaskSubtask")
+  users       User[]        @relation("AssignedTasks")
+}
+
+model subtask {
+  id            String      @id @default(cuid())
+  name          String      @db.VarChar(255)
+  description   String?
+  status        Task_status
+  taskId        String
+  creation_date DateTime    @default(now())
+  update_date   DateTime    @updatedAt
+  authorId      String
+  author        User        @relation("Subtasksauthor", fields: [authorId], references: [id])
+  task          Task        @relation("TaskSubtask", fields: [taskId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  date      DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  taskId    String?
+  issueId   String?
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  issue     Issue?   @relation("IssueComments", fields: [issueId], references: [id])
+  task      Task?    @relation("TaskComments", fields: [taskId], references: [id])
+}
+
+model Issue {
+  id          String        @id @default(cuid())
+  code        String        @unique @map("code")
+  type        IssueType
+  summary     String        @map("summary")
+  description String?       @map("description")
+  priority    Task_priority
+  projectId   String
+  reporterId  String
+  status      IssueStatus
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  comments    Comment[]     @relation("IssueComments")
+  project     Project       @relation(fields: [projectId], references: [id])
+  reporter    User          @relation("reporterissue", fields: [reporterId], references: [id])
+  assignedTo  User[]        @relation("Assignedto")
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  isActive    Boolean   @default(true)
+  maxUses     Int?
+  uses        Int       @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  workspaceId String
+  authorId    String
+  author      User      @relation("InvitationAuthor", fields: [authorId], references: [id])
+  workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id])
 }
 
 enum UserType {
@@ -67,25 +158,6 @@ enum Role_User {
   ADMIN
 }
 
-model Project {
-  id           String         @id @default(cuid())
-  code         String         @unique
-  name         String
-  image        String?
-  description  String?
-  type         Project_Type
-  status       Project_Status?@default(ONGOING)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  authorId     String
-  author       User           @relation("ProjectAuthors", fields: [authorId], references: [id])
-  tasks        Task[]         @relation("ProjectTasks")
-  participants User[]         @relation("ProjectParticipants")
-  issues       Issue[]        @relation
-  workspaceId  String
-  workspace    Workspace    @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
-}
-
 enum Project_Type {
   SOFTWARE
   EXTERNAL
@@ -97,26 +169,6 @@ enum Project_Status {
   ONGOING
   ONWAIT
   COMPLETED
-}
-
-model Task {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  summary     String
-  description String
-  priority    Task_priority
-  task_type   Task_type
-  status      Task_status
-  projectId   String
-  project     Project       @relation("ProjectTasks", fields: [projectId], references: [id])
-  creatorId   String
-  creator     User          @relation("CreatedTasks", fields: [creatorId], references: [id])
-  users       User[]        @relation("AssignedTasks")
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  comments    Comment[]     @relation("TaskComments")
-  subtasks    subtask[]     @relation("TaskSubtask")
-  dueTime     Int?          // Duración en minutos (por ejemplo, 180 = 3 horas)
 }
 
 enum Task_priority {
@@ -141,32 +193,6 @@ enum Task_status {
   COMPLETED
 }
 
-model subtask {
-  id            String      @id @default(cuid())
-  name          String      @db.VarChar(255)
-  description   String?
-  status        Task_status
-  taskId        String
-  creation_date DateTime    @default(now())
-  update_date   DateTime    @updatedAt
-  task          Task        @relation("TaskSubtask", fields: [taskId], references: [id])
-  authorId      String
-  author        User        @relation("Subtasksauthor", fields: [authorId], references: [id])
-}
-
-model Comment {
-  id        String   @id @default(cuid())
-  body      String
-  date      DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  taskId    String?
-  task      Task?    @relation("TaskComments", fields: [taskId], references: [id])
-  issueId   String?
-  issue     Issue?   @relation("IssueComments", fields: [issueId], references: [id])
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-}
-
 enum IssueType {
   BUG
   FEATURE_REQUEST
@@ -176,37 +202,4 @@ enum IssueStatus {
   PENDING
   ONGOING
   COMPLETED
-}
-
-model Issue {
-  id          String        @id @default(cuid())
-  code        String        @unique @map("code")
-  type        IssueType
-  summary     String        @map("summary")
-  description String?       @map("description")
-  priority    Task_priority
-  projectId   String
-  project     Project       @relation(fields: [projectId], references: [id])
-  reporterId  String
-  reporter    User          @relation("reporterissue", fields: [reporterId], references: [id])
-  status      IssueStatus
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  comments    Comment[]     @relation("IssueComments")
-  assignedTo  User[]        @relation("Assignedto")
-}
-
-
-model Invitation {
-  id          String    @id @default(cuid())
-  code        String    @unique
-  isActive    Boolean   @default(true)
-  maxUses     Int?      
-  uses        Int       @default(0)
-  expiresAt   DateTime? 
-  createdAt   DateTime  @default(now())
-  workspaceId String
-  workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id])
-  authorId    String
-  author      User      @relation("InvitationAuthor", fields: [authorId], references: [id])
 }

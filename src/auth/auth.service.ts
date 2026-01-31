@@ -10,7 +10,7 @@ import { Role_User } from '@prisma/client';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UpdateUserDto } from './dto/update.dto';
+import { UpdateAuthUserDto } from './dto/update.dto';
 import { UserActiveInterface } from './interface/user-active.interface';
 import { ConfigService } from '@nestjs/config';
 
@@ -106,7 +106,7 @@ export class AuthService {
     return userWithoutSensitiveData;
   }
 
-  async updateUser(updateUserDto: UpdateUserDto, user: UserActiveInterface) {
+  async updateUser(updateUserDto: UpdateAuthUserDto, user: UserActiveInterface) {
     const userId = user.id;
 
     if (!userId)

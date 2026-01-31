@@ -14,7 +14,9 @@ async function bootstrap() {
 
   logger.log('Aplicación iniciada');
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['/', '/docs', '/docs/*path', '/health'],
+  });
   logger.log('Prefijo global establecido a /api/v1');
 
   app.useGlobalPipes(
