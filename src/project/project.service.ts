@@ -81,7 +81,9 @@ export class ProjectService {
         workspaceId: workspaceId,
       },
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -91,7 +93,9 @@ export class ProjectService {
   async getProjects() {
     return await this.prisma.project.findMany({
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -104,14 +108,13 @@ export class ProjectService {
       where: {
         OR: [
           { creatorId: user.id },
-          { owners: { some: { id: user.id } } },
-          { users: { some: { id: user.id } } },
+          { members: { some: { userId: user.id } } },
         ],
       },
       select: { id: true },
     });
 
-    const workspaceIds = userWorkspaces.map(w => w.id);
+    const workspaceIds = userWorkspaces.map((w) => w.id);
 
     // Luego filtramos proyectos que pertenezcan a esos workspaces
     return await this.prisma.project.findMany({
@@ -125,13 +128,15 @@ export class ProjectService {
           {
             OR: [
               { authorId: user.id },
-              { participants: { some: { id: user.id } } },
+              { members: { some: { userId: user.id } } },
             ],
           },
         ],
       },
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -146,7 +151,9 @@ export class ProjectService {
         id: projectId,
       },
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -165,7 +172,9 @@ export class ProjectService {
         code: code,
       },
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -179,7 +188,9 @@ export class ProjectService {
         name: name,
       },
       include: {
-        participants: true,
+        members: {
+          include: { user: true },
+        },
         tasks: true,
         author: true,
       },
@@ -238,17 +249,8 @@ export class ProjectService {
     if (findProject.authorId !== userId)
       throw new BadRequestException('No eres el author de este proyecto');
 
-    const participantsUpdate = newProject.participants
-      ? {
-          participants: {
-            connect: newProject.participants.map((participantId) => ({
-              id: participantId,
-            })),
-          },
-        }
-      : {};
-
-    return this.prisma.project.update({
+    // Actualizar proyecto
+    const updatedProject = await this.prisma.project.update({
       where: {
         id: id,
       },
@@ -258,8 +260,21 @@ export class ProjectService {
         code: newProject.code,
         type: newProject.type,
         status: newProject.status,
-        ...participantsUpdate,
       },
     });
+
+    // Si hay nuevos participantes, crear sus membresías
+    if (newProject.participants && newProject.participants.length > 0) {
+      await this.prisma.projectMember.createMany({
+        data: newProject.participants.map((participantId) => ({
+          userId: participantId,
+          projectId: id,
+          role: 'MEMBER',
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    return updatedProject;
   }
 }

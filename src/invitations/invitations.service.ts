@@ -47,7 +47,7 @@ export class InvitationsService {
 
     const invitation = await this.prisma.invitation.findUnique({
       where: { code },
-      include: { workspace: { include: { users: true } } },
+      include: { workspace: { include: { members: true } } },
     });
 
     if (!invitation || !invitation.isActive) {
@@ -62,17 +62,18 @@ export class InvitationsService {
       throw new BadRequestException('La invitación ha alcanzado el máximo de usos');
     }
 
-    const isMember = invitation.workspace.users.some((u) => u.id === userId);
+    const isMember = invitation.workspace.members.some((m) => m.userId === userId);
     if (isMember || invitation.workspace.creatorId === userId) {
       throw new BadRequestException('Ya eres miembro de este workspace');
     }
 
     try {
       return await this.prisma.$transaction(async (tx) => {
-        await tx.workspace.update({
-          where: { id: invitation.workspaceId },
+        await tx.workspaceMember.create({
           data: {
-            users: { connect: { id: userId } },
+            userId: userId,
+            workspaceId: invitation.workspaceId,
+            role: 'MEMBER',
           },
         });
 

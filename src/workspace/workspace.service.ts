@@ -51,8 +51,9 @@ export class WorkspaceService {
     return await this.prisma.workspace.findMany({
       include: {
         creator: true,
-        owners: true,
-        users: true,
+        members: {
+          include: { user: true },
+        },
         projects: true,
       },
     });
@@ -67,8 +68,9 @@ export class WorkspaceService {
       },
       include: {
         creator: true,
-        owners: true,
-        users: true,
+        members: {
+          include: { user: true },
+        },
         projects: true,
       },
     });
@@ -82,16 +84,18 @@ export class WorkspaceService {
             creatorId: user.id,
           },
           {
-            users: {
+            members: {
               some: {
-                id: user.id,
+                userId: user.id,
               },
             },
           },
         ],
       },
       include: {
-        users: true,
+        members: {
+          include: { user: true },
+        },
         creator: true,
         projects: true,
       },
@@ -186,11 +190,13 @@ export class WorkspaceService {
       throw new NotFoundException('Workspace no encontrado');
     }
 
-    // Verificar que el usuario sea el creador o un owner
+    // Verificar que el usuario sea el creador o un admin/owner
     const isCreator = workspace.creatorId === user.id;
-    const isOwner = workspace.owners.some((owner) => owner.id === user.id);
+    const isAdmin = workspace.members.some(
+      (m) => m.userId === user.id && (m.role === 'OWNER' || m.role === 'ADMIN'),
+    );
 
-    if (!isCreator && !isOwner) {
+    if (!isCreator && !isAdmin) {
       throw new ForbiddenException(
         'No tienes permiso para crear invitaciones en este workspace',
       );
@@ -238,8 +244,7 @@ export class WorkspaceService {
     // Verificar que el usuario sea miembro del workspace
     const isMember =
       workspace.creatorId === user.id ||
-      workspace.owners.some((owner) => owner.id === user.id) ||
-      workspace.users.some((u) => u.id === user.id);
+      workspace.members.some((m) => m.userId === user.id);
 
     if (!isMember) {
       throw new ForbiddenException(
@@ -273,8 +278,7 @@ export class WorkspaceService {
       include: {
         workspace: {
           include: {
-            users: true,
-            owners: true,
+            members: true,
           },
         },
       },
@@ -302,21 +306,20 @@ export class WorkspaceService {
     }
 
     // Verificar si el usuario ya es miembro
-    const isAlreadyMember = invitation.workspace.users.some(
-      (u) => u.id === user.id,
-    );
+    const isAlreadyMember =
+      invitation.workspace.creatorId === user.id ||
+      invitation.workspace.members.some((m) => m.userId === user.id);
 
     if (isAlreadyMember) {
       throw new BadRequestException('Ya eres miembro de este workspace');
     }
 
     // Agregar usuario al workspace
-    await this.prisma.workspace.update({
-      where: { id: invitation.workspaceId },
+    await this.prisma.workspaceMember.create({
       data: {
-        users: {
-          connect: { id: user.id },
-        },
+        userId: user.id,
+        workspaceId: invitation.workspaceId,
+        role: 'MEMBER',
       },
     });
 
@@ -344,8 +347,7 @@ export class WorkspaceService {
     // Verificar que el usuario sea miembro del workspace
     const isMember =
       workspace.creatorId === user.id ||
-      workspace.owners.some((owner) => owner.id === user.id) ||
-      workspace.users.some((u) => u.id === user.id);
+      workspace.members.some((m) => m.userId === user.id);
 
     if (!isMember) {
       throw new ForbiddenException(
@@ -353,10 +355,15 @@ export class WorkspaceService {
       );
     }
 
+    const owners = workspace.members.filter((m) => m.role === 'OWNER').map((m) => m.user);
+    const admins = workspace.members.filter((m) => m.role === 'ADMIN').map((m) => m.user);
+    const members = workspace.members.filter((m) => m.role === 'MEMBER').map((m) => m.user);
+
     return {
       creator: workspace.creator,
-      owners: workspace.owners,
-      members: workspace.users,
+      owners,
+      admins,
+      members,
     };
   }
 
@@ -366,7 +373,7 @@ export class WorkspaceService {
       include: {
         workspace: {
           include: {
-            owners: true,
+            members: true,
           },
         },
       },
@@ -376,13 +383,13 @@ export class WorkspaceService {
       throw new NotFoundException('Invitación no encontrada');
     }
 
-    // Verificar que el usuario sea el creador del workspace o un owner
+    // Verificar que el usuario sea el creador del workspace o un admin/owner
     const isCreator = invitation.workspace.creatorId === user.id;
-    const isOwner = invitation.workspace.owners.some(
-      (owner) => owner.id === user.id,
+    const isAdmin = invitation.workspace.members.some(
+      (m) => m.userId === user.id && (m.role === 'OWNER' || m.role === 'ADMIN'),
     );
 
-    if (!isCreator && !isOwner) {
+    if (!isCreator && !isAdmin) {
       throw new ForbiddenException(
         'No tienes permiso para desactivar esta invitación',
       );
@@ -407,10 +414,15 @@ export class WorkspaceService {
       throw new NotFoundException('Workspace no encontrado');
     }
 
-    // Solo el creador puede remover miembros
-    if (workspace.creatorId !== user.id) {
+    // Solo el creador o admins pueden remover miembros
+    const isCreator = workspace.creatorId === user.id;
+    const isAdmin = workspace.members.some(
+      (m) => m.userId === user.id && (m.role === 'OWNER' || m.role === 'ADMIN'),
+    );
+
+    if (!isCreator && !isAdmin) {
       throw new ForbiddenException(
-        'Solo el creador del workspace puede remover miembros',
+        'No tienes permiso para remover miembros de este workspace',
       );
     }
 
@@ -420,35 +432,21 @@ export class WorkspaceService {
     }
 
     // Verificar si el usuario es miembro
-    const isMember = workspace.users.some((u) => u.id === userId);
-    const isOwner = workspace.owners.some((o) => o.id === userId);
+    const membership = workspace.members.find((m) => m.userId === userId);
 
-    if (!isMember && !isOwner) {
+    if (!membership) {
       throw new BadRequestException('Este usuario no es miembro del workspace');
     }
 
-    // Remover usuario de la lista de miembros o owners
-    if (isMember) {
-      await this.prisma.workspace.update({
-        where: { id: workspaceId },
-        data: {
-          users: {
-            disconnect: { id: userId },
-          },
+    // Remover membresía
+    await this.prisma.workspaceMember.delete({
+      where: {
+        userId_workspaceId: {
+          userId: userId,
+          workspaceId: workspaceId,
         },
-      });
-    }
-
-    if (isOwner) {
-      await this.prisma.workspace.update({
-        where: { id: workspaceId },
-        data: {
-          owners: {
-            disconnect: { id: userId },
-          },
-        },
-      });
-    }
+      },
+    });
 
     return { message: 'Miembro removido del workspace exitosamente' };
   }

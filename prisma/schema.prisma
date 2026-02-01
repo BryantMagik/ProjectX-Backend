@@ -14,11 +14,10 @@ model Workspace {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   creatorId   String?      @default(cuid())
-  invitations Invitation[] @relation("WorkspaceInvitations")
-  projects    Project[]    @relation("WorkspaceProjects")
-  creator     User?        @relation("WorkspaceCreator", fields: [creatorId], references: [id])
-  users       User[]       @relation("WorkspaceMembers")
-  owners      User[]       @relation("WorkspaceOwners")
+  invitations Invitation[]       @relation("WorkspaceInvitations")
+  projects    Project[]          @relation("WorkspaceProjects")
+  creator     User?              @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  members     WorkspaceMember[]
 }
 
 model User {
@@ -41,10 +40,9 @@ model User {
   workspacesAsCreator Workspace[]  @relation("WorkspaceCreator")
   subtasks            subtask[]    @relation("Subtasksauthor")
   assignedTasks       Task[]       @relation("AssignedTasks")
-  assignedtoIssues    Issue[]      @relation("Assignedto")
-  participantProjects Project[]    @relation("ProjectParticipants")
-  workspacesAsMember  Workspace[]  @relation("WorkspaceMembers")
-  workspacesAsOwner   Workspace[]  @relation("WorkspaceOwners")
+  assignedtoIssues    Issue[]           @relation("Assignedto")
+  workspaceMemberships WorkspaceMember[]
+  projectMemberships   ProjectMember[]
 }
 
 model Project {
@@ -63,7 +61,7 @@ model Project {
   author       User            @relation("ProjectAuthors", fields: [authorId], references: [id])
   workspace    Workspace       @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
   tasks        Task[]          @relation("ProjectTasks")
-  participants User[]          @relation("ProjectParticipants")
+  members      ProjectMember[]
 }
 
 model Task {
@@ -145,6 +143,30 @@ model Invitation {
   workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id])
 }
 
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  userId    String
+  projectId String
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
 enum UserType {
   TRAINEE
   DEVELOPER
@@ -203,4 +225,16 @@ enum IssueStatus {
   PENDING
   ONGOING
   COMPLETED
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProjectRole {
+  LEAD
+  MEMBER
+  VIEWER
 }
