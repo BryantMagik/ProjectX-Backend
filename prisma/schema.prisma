@@ -76,7 +76,7 @@ model Task {
   description String
   priority    Task_priority
   task_type   Task_type
-  status      Task_status
+  status      TaskStatus
   projectId   String
   creatorId   String
   createdAt   DateTime      @default(now())
@@ -94,7 +94,7 @@ model subtask {
   id            String      @id @default(cuid())
   name          String      @db.VarChar(255)
   description   String?
-  status        Task_status
+  status        TaskStatus
   taskId        String
   creation_date DateTime    @default(now())
   update_date   DateTime    @updatedAt
@@ -209,22 +209,26 @@ enum Task_priority {
   HIGH
   MEDIUM
   LOW
+  CRITICAL
 }
 
 enum Task_type {
+  FEATURE
   BUG
-  FEATURE_REQUEST
+  CHORE
+  IMPROVEMENT
+  HOTFIX
+}
+
+enum TaskStatus {
   BACKLOG
   TODO
   IN_PROGRESS
-  IN_REVIEW
+  BLOCKED
+  REVIEW
+  TESTING
   DONE
-}
-
-enum Task_status {
-  PENDING
-  ONGOING
-  COMPLETED
+  CANCELLED
 }
 
 enum IssueType {

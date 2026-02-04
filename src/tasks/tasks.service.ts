@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TaskDto } from './dto/CreateTask.dto';
+import { UpdateTaskDto } from './dto/UpdateTask.dto';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { ProjectService } from 'src/project/project.service';
 import { UsersService } from 'src/users/users.service';
@@ -42,7 +43,7 @@ export class TasksService {
         description: taskDto.description,
         priority: taskDto.priority,
         task_type: taskDto.task_type,
-        status: taskDto.task_status,
+        status: taskDto.status,
         creatorId: userId,
         dueTime: taskDto.dueTime ?? null,
       },
@@ -143,6 +144,44 @@ export class TasksService {
     await this.prisma.task.delete({
       where: { name: name },
     });
+  }
+
+  async updateTask(
+    id: string,
+    taskDto: UpdateTaskDto,
+    user: UserActiveInterface,
+  ) {
+    console.log('Updating task:', { id, taskDto, userId: user.id });
+    
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) {
+      console.error('Task not found:', id);
+      throw new Error('Tarea no encontrada');
+    }
+
+    const updateData: any = {};
+    if (taskDto.summary !== undefined) updateData.summary = taskDto.summary;
+    if (taskDto.description !== undefined) updateData.description = taskDto.description;
+    if (taskDto.priority !== undefined) updateData.priority = taskDto.priority;
+    if (taskDto.task_type !== undefined) updateData.task_type = taskDto.task_type;
+    if (taskDto.status !== undefined) updateData.status = taskDto.status;
+    if (taskDto.dueTime !== undefined) updateData.dueTime = taskDto.dueTime;
+    if (taskDto.code !== undefined) updateData.name = taskDto.code;
+
+    console.log('Update data:', updateData);
+
+    const updatedTask = await this.prisma.task.update({
+      where: { id },
+      data: updateData,
+      include: {
+        project: true,
+        creator: true,
+        users: true,
+      },
+    });
+
+    console.log('Task updated successfully:', updatedTask.id, updatedTask.status);
+    return updatedTask;
   }
 
   async deleteTaskById(name: string, user: UserActiveInterface) {

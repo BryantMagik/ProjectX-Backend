@@ -1,4 +1,4 @@
-import { Task_priority, Task_status, Task_type } from '@prisma/client';
+import { Task_priority, TaskStatus, Task_type } from '@prisma/client';
 import {
   IsEnum,
   IsNotEmpty,
@@ -25,9 +25,9 @@ export class TaskDto {
   @IsNotEmpty()
   priority: Task_priority;
 
-  @IsEnum(Task_status)
+  @IsEnum(TaskStatus)
   @IsNotEmpty()
-  task_status: Task_status;
+  status: TaskStatus;
 
   @IsEnum(Task_type)
   @IsNotEmpty()

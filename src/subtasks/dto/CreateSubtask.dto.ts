@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
-import { Task, Task_status } from '@prisma/client';
+import { Task, TaskStatus } from '@prisma/client';
 
 export class CreateSubtaskDto {
   @IsString()
@@ -9,8 +9,8 @@ export class CreateSubtaskDto {
   @IsString()
   description?: string;
 
-  @IsEnum(Task_status)
-  status: Task_status;
+  @IsEnum(TaskStatus)
+  status: TaskStatus;
 
   @IsString()
   taskId: string;

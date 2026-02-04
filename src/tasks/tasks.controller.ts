@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Req,
@@ -15,6 +16,7 @@ import { Role_User, User } from '@prisma/client';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { TasksService } from './tasks.service';
 import { TaskDto } from './dto/CreateTask.dto';
+import { UpdateTaskDto } from './dto/UpdateTask.dto';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 
@@ -44,16 +46,25 @@ export class TasksController {
     return this.tasksService.getTasksByProjectId(projectId);
   }
 
+  @Get('user/tasks')
+  async getTaskByIdWhereId(@ActiveUser() user: UserActiveInterface) {
+    const tasks = await this.tasksService.getTaskByIdWhereId(user);
+    return tasks;
+  }
+
   @Get('id/:id')
   async getTaskById(@Param('id') id: string) {
     const task = await this.tasksService.getTasksById(id);
     return task;
   }
 
-  @Get('user/tasks')
-  async getTaskByIdWhereId(@ActiveUser() user: UserActiveInterface) {
-    const tasks = await this.tasksService.getTaskByIdWhereId(user);
-    return tasks;
+  @Patch(':id')
+  async updateTask(
+    @Param('id') id: string,
+    @Body() taskDto: UpdateTaskDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    return this.tasksService.updateTask(id, taskDto, user);
   }
 
   @Get(':code')
@@ -61,6 +72,7 @@ export class TasksController {
     const task = await this.tasksService.getTaskByCode(code);
     return task;
   }
+
   @Delete(':id')
   deleteTaskById(
     @Param('id') id: string,
