@@ -53,6 +53,51 @@ export class TasksService {
     };
   }
 
+  async getTotalTasksCount(): Promise<number> {
+    return await this.prisma.task.count();
+  }
+
+  async getAssignedTasksCount(userId: string): Promise<number> {
+    return await this.prisma.task.count({
+      where: {
+        users: {
+          some: { id: userId },
+        },
+      },
+    });
+  }
+
+  async getCompletedTasksCount(): Promise<number> {
+    return await this.prisma.task.count({
+      where: {
+        status: 'DONE',
+      },
+    });
+  }
+
+  async getOverdueTasksCount(): Promise<number> {
+    const allTasks = await this.prisma.task.findMany({
+      where: {
+        NOT: { status: 'DONE' },
+        dueTime: { not: null },
+      },
+      select: {
+        createdAt: true,
+        dueTime: true,
+      },
+    });
+
+    const now = new Date();
+
+    // Filtramos las tareas donde: fecha_creación + dueTime (minutos) < ahora
+    const overdueTasks = allTasks.filter((task) => {
+      const deadline = new Date(task.createdAt.getTime() + task.dueTime * 60000);
+      return deadline < now;
+    });
+
+    return overdueTasks.length;
+  }
+
   async getTasks() {
     return this.prisma.task.findMany({
       include: {

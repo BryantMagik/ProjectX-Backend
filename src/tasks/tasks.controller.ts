@@ -73,6 +73,27 @@ export class TasksController {
     return task;
   }
 
+
+  @Get('count/total')
+  async getTotalTasks() {
+    return { count: await this.tasksService.getTotalTasksCount() };
+  }
+
+  @Get('count/assigned')
+  async getAssignedTasks(@ActiveUser() user: UserActiveInterface) {
+    return { count: await this.tasksService.getAssignedTasksCount(user.id) };
+  }
+
+  @Get('count/completed')
+  async getCompletedTasks() {
+    return { count: await this.tasksService.getCompletedTasksCount() };
+  }
+
+  @Get('count/overdue')
+  async getOverdueTasks() {
+    return { count: await this.tasksService.getOverdueTasksCount() };
+  }
+
   @Delete(':id')
   deleteTaskById(
     @Param('id') id: string,
