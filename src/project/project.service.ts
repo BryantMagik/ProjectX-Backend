@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProjectDto } from './dto/CreateProject.dto';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UsersService } from 'src/users/users.service';
-import { Project_Status } from '@prisma/client';
+import { Project_Status, Project_Visibility } from '@prisma/client';
 import { UpdateProjectDto } from './dto/UpdateProject.dto';
 
 @Injectable()
@@ -58,6 +58,10 @@ export class ProjectService {
       description,
       type,
       status = Project_Status.ONGOING,
+      visibility = Project_Visibility.PRIVATE,
+      startDate,
+      endDate,
+      leadId,
       image,
     } = projectDto;
 
@@ -70,6 +74,10 @@ export class ProjectService {
         image,
         type,
         status,
+        visibility,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        leadId: leadId || null,
         authorId: userId,
       },
     });

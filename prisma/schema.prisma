@@ -36,6 +36,7 @@ model User {
   createdInvitations  Invitation[] @relation("InvitationAuthor")
   issues              Issue[]      @relation("reporterissue")
   authoredProjects    Project[]    @relation("ProjectAuthors")
+  leadProjects        Project[]    @relation("ProjectLead")
   createdTasks        Task[]       @relation("CreatedTasks")
   workspacesAsCreator Workspace[]  @relation("WorkspaceCreator")
   subtasks            subtask[]    @relation("Subtasksauthor")
@@ -46,21 +47,26 @@ model User {
 }
 
 model Project {
-  id           String          @id @default(cuid())
-  code         String          @unique
+  id           String             @id @default(cuid())
+  code         String             @unique
   name         String
   description  String?
   type         Project_Type
-  status       Project_Status? @default(ONGOING)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  status       Project_Status?    @default(ONGOING)
+  visibility   Project_Visibility @default(PRIVATE)
+  startDate    DateTime?
+  endDate      DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
   authorId     String
+  leadId       String?
   image        String?
   workspaceId  String
   issues       Issue[]
-  author       User            @relation("ProjectAuthors", fields: [authorId], references: [id])
-  workspace    Workspace       @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
-  tasks        Task[]          @relation("ProjectTasks")
+  author       User               @relation("ProjectAuthors", fields: [authorId], references: [id])
+  lead         User?              @relation("ProjectLead", fields: [leadId], references: [id])
+  workspace    Workspace          @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
+  tasks        Task[]             @relation("ProjectTasks")
   members      ProjectMember[]
 }
 
@@ -192,6 +198,11 @@ enum Project_Status {
   ONGOING
   ONWAIT
   COMPLETED
+}
+
+enum Project_Visibility {
+  PUBLIC
+  PRIVATE
 }
 
 enum Task_priority {

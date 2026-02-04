@@ -1,6 +1,7 @@
-import { Project_Status, Project_Type } from '@prisma/client';
+import { Project_Status, Project_Type, Project_Visibility } from '@prisma/client';
 import {
   IsArray,
+  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -40,8 +41,23 @@ export class CreateProjectDto {
 
   @IsEnum(Project_Status)
   @IsOptional()
-  @IsNotEmpty()
   status: Project_Status;
+
+  @IsEnum(Project_Visibility)
+  @IsOptional()
+  visibility: Project_Visibility;
+
+  @IsDateString({}, { message: 'La fecha de inicio debe ser una fecha válida.' })
+  @IsOptional()
+  startDate: string;
+
+  @IsDateString({}, { message: 'La fecha de fin debe ser una fecha válida.' })
+  @IsOptional()
+  endDate: string;
+
+  @IsString({ message: 'El ID del líder debe ser una cadena de texto.' })
+  @IsOptional()
+  leadId: string;
 
   @IsArray()
   @IsOptional()
