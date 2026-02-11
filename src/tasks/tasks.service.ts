@@ -34,6 +34,7 @@ export class TasksService {
     const dbUser = await this.user.getUserById(user.id);
 
     if (!dbUser) throw new Error('Usuario no encontrado en la DB');
+    const { dueTime } = taskDto;
 
     await this.prisma.task.create({
       data: {
@@ -45,7 +46,7 @@ export class TasksService {
         task_type: taskDto.task_type,
         status: taskDto.status,
         creatorId: userId,
-        dueTime: taskDto.dueTime ?? null,
+        dueTime:dueTime ? new Date(dueTime) : undefined,
       },
     });
     return {
@@ -89,9 +90,9 @@ export class TasksService {
 
     const now = new Date();
 
-    // Filtramos las tareas donde: fecha_creación + dueTime (minutos) < ahora
+    // Filtramos las tareas donde la fecha de creación más el tiempo de vencimiento es menor que la fecha actual
     const overdueTasks = allTasks.filter((task) => {
-      const deadline = new Date(task.createdAt.getTime() + task.dueTime * 60000);
+      const deadline = new Date(task.createdAt.getTime() + task.dueTime.getTime());
       return deadline < now;
     });
 
@@ -210,8 +211,11 @@ export class TasksService {
     if (taskDto.priority !== undefined) updateData.priority = taskDto.priority;
     if (taskDto.task_type !== undefined) updateData.task_type = taskDto.task_type;
     if (taskDto.status !== undefined) updateData.status = taskDto.status;
-    if (taskDto.dueTime !== undefined) updateData.dueTime = taskDto.dueTime;
     if (taskDto.code !== undefined) updateData.name = taskDto.code;
+    if (taskDto.dueTime !== undefined) {
+          // Convertimos el string a un objeto Date
+        updateData.dueTime = taskDto.dueTime ? new Date(taskDto.dueTime) : null;
+    }
 
     console.log('Update data:', updateData);
 

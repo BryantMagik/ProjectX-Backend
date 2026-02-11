@@ -82,7 +82,7 @@ model Task {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   name        String        @unique
-  dueTime     Int?
+  dueTime     DateTime?
   comments    Comment[]     @relation("TaskComments")
   creator     User          @relation("CreatedTasks", fields: [creatorId], references: [id])
   project     Project       @relation("ProjectTasks", fields: [projectId], references: [id])
