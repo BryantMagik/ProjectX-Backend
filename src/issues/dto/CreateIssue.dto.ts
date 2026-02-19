@@ -10,8 +10,8 @@ import { IssueType, Task_priority, IssueStatus } from '@prisma/client';
 
 export class CreateIssue {
   @IsString()
-  @IsNotEmpty()
-  code: string;
+  @IsOptional()
+  code?: string;
 
   @IsEnum(IssueType)
   @IsNotEmpty()

@@ -14,6 +14,51 @@ import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 export class IssuesService {
   constructor(private prisma: PrismaService) {}
 
+  private generateNextCode(lastCode: string | null): string {
+    if (!lastCode) return 'ISS-A00-001';
+
+    const parts = lastCode.split('-');
+    if (parts.length !== 3) return 'ISS-A00-001';
+
+    let alphaBlock = parts[1]; // A00
+    let numericPart = parseInt(parts[2], 10); // 001
+
+    numericPart++;
+
+    if (numericPart > 999) {
+      numericPart = 1;
+      // Incrementar bloque alfa (A00 -> A01)
+      let letter = alphaBlock.charAt(0);
+      let num = parseInt(alphaBlock.substring(1), 10);
+      num++;
+      if (num > 99) {
+        num = 0;
+        letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+      }
+      alphaBlock = `${letter}${num.toString().padStart(2, '0')}`;
+    }
+
+    const newNumeric = numericPart.toString().padStart(3, '0');
+    return `ISS-${alphaBlock}-${newNumeric}`;
+  }
+
+  async getLatestCode() : Promise<string | null> {
+    try {
+      const lastIssue = await this.prisma.issue.findFirst({
+        orderBy: {
+          createdAt: 'desc', 
+        },
+        select: {
+          code: true,
+        },
+      });
+
+      return lastIssue ? lastIssue.code : null;
+    } catch (error) {
+      throw new BadRequestException('Error al recuperar el último código');
+    }
+  }
+
   async createIssue(createIssueDto: CreateIssue, user: UserActiveInterface) {
     const userId = user.id;
 
@@ -22,11 +67,14 @@ export class IssuesService {
     }
 
     const { assignedTo } = createIssueDto;
+    const lastCodeData = await this.getLatestCode();
+    const nextCode = this.generateNextCode(lastCodeData);
 
     try {
       return await this.prisma.issue.create({
         data: {
           ...createIssueDto,
+          code: nextCode,
           reporterId: userId,
           assignedTo: {
             connect: assignedTo.map((userId) => ({ id: userId })),
@@ -34,7 +82,7 @@ export class IssuesService {
         },
       });
     } catch (error) {
-      throw new BadRequestException('Error al crear el issue');
+      throw new BadRequestException('Error al crear el issue' + error.message);
     }
   }
 

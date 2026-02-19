@@ -40,6 +40,14 @@ export class IssuesController {
     return await this.issueService.getIssuesByUser(user);
   }
 
+  
+
+  @Get('latest-code')
+  async getLatestCode(): Promise<{ code: string | null }> {
+    const code = await this.issueService.getLatestCode();
+    return { code };
+  }
+
   @Post()
   create(
     @Body() createIssueDto: CreateIssue,
