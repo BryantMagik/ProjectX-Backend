@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role_User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -16,6 +16,21 @@ export class UsersService {
 
   getUsers() {
     return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  getAdmins() {
+    return this.prisma.user.findMany({
+      where: { role: Role_User.ADMIN },
       select: {
         id: true,
         email: true,

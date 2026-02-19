@@ -9,7 +9,7 @@ import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWorkSpaceDto } from './dto/CreateWorkspace.dto';
 import { UpdateWorkspaceDto } from './dto/UpdateWorkspace.dto';
-import { CreateInvitationDto } from './dto/CreateInvitation.dto';
+import { CreateWorkspaceInvitationDto } from './dto/CreateInvitation.dto';
 
 @Injectable()
 export class WorkspaceService {
@@ -181,7 +181,7 @@ export class WorkspaceService {
   // Invitation methods
   async createInvitation(
     workspaceId: string,
-    invitationDto: CreateInvitationDto,
+    invitationDto: CreateWorkspaceInvitationDto,
     user: UserActiveInterface,
   ) {
     const workspace = await this.getWorkspaceById(workspaceId);

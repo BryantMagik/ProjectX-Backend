@@ -17,7 +17,7 @@ import { WorkspaceService } from './workspace.service';
 import { CreateWorkSpaceDto } from './dto/CreateWorkspace.dto';
 import { ActiveUser } from 'src/users/decorators/active-user.decorator';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
-import { CreateInvitationDto } from './dto/CreateInvitation.dto';
+import { CreateWorkspaceInvitationDto } from './dto/CreateInvitation.dto';
 import { JoinWorkspaceDto } from './dto/JoinWorkspace.dto';
 
 @Auth(Role_User.USER)
@@ -79,7 +79,7 @@ export class WorkspaceController {
   @UsePipes(ValidationPipe)
   async createInvitation(
     @Param('workspaceId') workspaceId: string,
-    @Body() invitationDto: CreateInvitationDto,
+    @Body() invitationDto: CreateWorkspaceInvitationDto,
     @ActiveUser() user: UserActiveInterface,
   ) {
     return this.workspaceService.createInvitation(

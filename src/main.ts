@@ -2,22 +2,23 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './swagger/swagger.setup';
-import { Logger } from 'nestjs-pino';
+import { CustomLoggerService } from './logger/custom-logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
 
-  const logger = app.get(Logger);
+  const logger = app.get(CustomLoggerService);
   app.useLogger(logger);
 
-  logger.log('Aplicación iniciada');
+  logger.log('==================================================');
+  logger.log('Iniciando la aplicación ProjectX-Backend');
+  logger.log('==================================================');
 
   app.setGlobalPrefix('api/v1', {
     exclude: ['/', '/docs', '/docs/*path', '/health'],
   });
-  logger.log('Prefijo global establecido a /api/v1');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -36,7 +37,6 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization',
   });
   setupSwagger(app);
-  logger.log('Swagger configurado');
 
   const port = parseInt(process.env.PORT) || 3000;
   await app.listen(port);

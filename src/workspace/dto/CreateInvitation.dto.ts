@@ -1,7 +1,7 @@
 import { IsOptional, IsInt, IsDateString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateInvitationDto {
+export class CreateWorkspaceInvitationDto {
   @ApiProperty({
     description: 'Maximum number of times this invitation can be used (optional)',
     required: false,

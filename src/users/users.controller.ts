@@ -34,10 +34,16 @@ export class UsersController {
     return this.userService.createUser(createUserDto);
   }
 
-  @Auth(Role_User.ADMIN)
+  @Auth(Role_User.USER)
   @Get()
   async getUsers() {
     return await this.userService.getUsers();
+  }
+
+  @Auth(Role_User.USER)
+  @Get('admins')
+  async getAdmins() {
+    return await this.userService.getAdmins();
   }
 
   @Auth(Role_User.ADMIN)

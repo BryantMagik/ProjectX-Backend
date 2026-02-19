@@ -30,7 +30,6 @@ export class PrismaService
   async onModuleInit() {
     try {
       await this.$connect();
-      this.logger.info('Conexión a la base de datos establecida con éxito');
     } catch (error) {
       this.logger.error(error, 'Error al conectar a la base de datos');
       throw error;
@@ -40,6 +39,5 @@ export class PrismaService
   async onModuleDestroy() {
     await this.$disconnect();
     await this.pool.end();
-    this.logger.info('Conexión a la base de datos cerrada');
   }
 }

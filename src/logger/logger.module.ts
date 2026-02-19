@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { createStream } from 'rotating-file-stream';
 import { join } from 'path';
 import { IncomingMessage } from 'http';
+import { CustomLoggerService } from './custom-logger.service';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -11,7 +12,7 @@ const isProduction = process.env.NODE_ENV === 'production';
   imports: [
     PinoLoggerModule.forRoot({
       pinoHttp: {
-        level: isProduction ? 'info' : 'debug',
+        level: isProduction ? 'info' : 'info',
         genReqId: (req: IncomingMessage) =>
           (req.headers['x-request-id'] as string) || randomUUID(),
         transport: isProduction
@@ -21,7 +22,8 @@ const isProduction = process.env.NODE_ENV === 'production';
               options: {
                 colorize: true,
                 translateTime: 'SYS:HH:MM:ss',
-                ignore: 'pid,hostname',
+                ignore: 'pid,hostname,context',
+                messageFormat: '{context} {msg}',
               },
             },
         stream: isProduction
@@ -31,8 +33,12 @@ const isProduction = process.env.NODE_ENV === 'production';
               maxFiles: 7,
             })
           : undefined,
+        autoLogging: false,
       },
+      forRoutes: [],
     }),
   ],
+  providers: [CustomLoggerService],
+  exports: [CustomLoggerService],
 })
 export class LoggerModule {}
