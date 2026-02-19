@@ -5,6 +5,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { ProjectService } from './project.service';
 import { UsersModule } from 'src/users/users.module';
 import { WorkspaceModule } from 'src/workspace/workspace.module';
+import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { WorkspaceModule } from 'src/workspace/workspace.module';
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
     WorkspaceModule,
+    LoggerModule,
   ],
   providers: [ProjectService],
   controllers: [ProjectController],

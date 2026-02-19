@@ -11,6 +11,7 @@ import { WorkspaceService } from 'src/workspace/workspace.service';
 import { UsersService } from 'src/users/users.service';
 import { Project_Status, Project_Visibility } from '@prisma/client';
 import { UpdateProjectDto } from './dto/UpdateProject.dto';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class ProjectService {
@@ -18,6 +19,8 @@ export class ProjectService {
     private readonly prisma: PrismaService,
     private readonly workspace: WorkspaceService,
     private readonly user: UsersService,
+    @InjectPinoLogger(ProjectService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   async createProject(
@@ -80,6 +83,11 @@ export class ProjectService {
         leadId: leadId || null,
         authorId: userId,
       },
+    }).then((project) => {
+      this.logger.info(
+        `Project created successfully: ${project.name} (${project.code}) | Type: ${project.type} | Status: ${project.status} | Visibility: ${project.visibility} | Workspace: ${project.workspaceId} | Author: ${project.authorId} | Lead: ${project.leadId || 'N/A'} | Start: ${project.startDate ? project.startDate.toISOString().split('T')[0] : 'N/A'} | End: ${project.endDate ? project.endDate.toISOString().split('T')[0] : 'N/A'}`
+      );
+      return project;
     });
   }
 
@@ -215,11 +223,17 @@ export class ProjectService {
       );
     }
 
-    return this.prisma.project.delete({
+    const deletedProject = await this.prisma.project.delete({
       where: {
         id: id,
       },
     });
+
+    this.logger.info(
+      `Project deleted successfully: ${deletedProject.name} (${deletedProject.code}) | Type: ${deletedProject.type} | Workspace: ${deletedProject.workspaceId}`
+    );
+
+    return deletedProject;
   }
 
   async deleteProjectByCode(code: string, user: UserActiveInterface) {
@@ -231,11 +245,18 @@ export class ProjectService {
         'No tienes permiso para eliminar este proyecto',
       );
     }
-    return this.prisma.project.delete({
+
+    const deletedProject = await this.prisma.project.delete({
       where: {
         code: code,
       },
     });
+
+    this.logger.info(
+      `Project deleted successfully: ${deletedProject.name} (${deletedProject.code}) | Type: ${deletedProject.type} | Workspace: ${deletedProject.workspaceId}`
+    );
+
+    return deletedProject;
   }
 
   async updateProjectById(
@@ -258,18 +279,28 @@ export class ProjectService {
       throw new BadRequestException('No eres el author de este proyecto');
 
     // Actualizar proyecto
+    const updateData: any = {};
+    if (newProject.name !== undefined) updateData.name = newProject.name;
+    if (newProject.description !== undefined) updateData.description = newProject.description;
+    if (newProject.code !== undefined) updateData.code = newProject.code;
+    if (newProject.type !== undefined) updateData.type = newProject.type;
+    if (newProject.status !== undefined) updateData.status = newProject.status;
+    if (newProject.visibility !== undefined) updateData.visibility = newProject.visibility;
+    if (newProject.image !== undefined) updateData.image = newProject.image;
+    if (newProject.leadId !== undefined) updateData.leadId = newProject.leadId || null;
+    if (newProject.startDate !== undefined) updateData.startDate = newProject.startDate ? new Date(newProject.startDate) : null;
+    if (newProject.endDate !== undefined) updateData.endDate = newProject.endDate ? new Date(newProject.endDate) : null;
+
     const updatedProject = await this.prisma.project.update({
       where: {
         id: id,
       },
-      data: {
-        name: newProject.name,
-        description: newProject.description,
-        code: newProject.code,
-        type: newProject.type,
-        status: newProject.status,
-      },
+      data: updateData,
     });
+
+    this.logger.info(
+      `Project updated successfully: ${updatedProject.name} (${updatedProject.code}) | Updated data: ${JSON.stringify(updateData)}`
+    );
 
     // Si hay nuevos participantes, crear sus membresías
     if (newProject.participants && newProject.participants.length > 0) {
