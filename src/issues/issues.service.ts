@@ -92,6 +92,7 @@ export class IssuesService {
         include: {
           reporter: true,
           project: true,
+          assignedTo: true,
         },
       });
     } catch (error) {
@@ -105,6 +106,7 @@ export class IssuesService {
       include: {
         reporter: true,
         project: true,
+        assignedTo: true,
       },
     });
 
@@ -161,6 +163,11 @@ export class IssuesService {
           status: updateIssueDto.status,
           ...assignedToUpdate,
         },
+        include: {
+          reporter: true,
+          project: true,
+          assignedTo: true,
+        },
       });
     } catch (error) {
       throw new BadRequestException('Error al actualizar el issue');
@@ -207,6 +214,7 @@ export class IssuesService {
       include: {
         reporter: true,
         project: true,
+        assignedTo: true,
       },
     });
 
