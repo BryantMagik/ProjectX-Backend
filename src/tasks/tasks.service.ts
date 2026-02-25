@@ -34,7 +34,7 @@ export class TasksService {
     const dbUser = await this.user.getUserById(user.id);
 
     if (!dbUser) throw new Error('Usuario no encontrado en la DB');
-    const { dueTime } = taskDto;
+    const { dueTime, assignedTo } = taskDto;
 
     await this.prisma.task.create({
       data: {
@@ -47,6 +47,11 @@ export class TasksService {
         status: taskDto.status,
         creatorId: userId,
         dueTime:dueTime ? new Date(dueTime) : undefined,
+        users: assignedTo?.length
+          ? {
+              connect: assignedTo.map((assignedId) => ({ id: assignedId })),
+            }
+          : undefined,
       },
     });
     return {
@@ -215,6 +220,11 @@ export class TasksService {
     if (taskDto.dueTime !== undefined) {
           // Convertimos el string a un objeto Date
         updateData.dueTime = taskDto.dueTime ? new Date(taskDto.dueTime) : null;
+    }
+    if (taskDto.assignedTo !== undefined) {
+      updateData.users = {
+        set: taskDto.assignedTo.map((assignedId) => ({ id: assignedId })),
+      };
     }
 
     console.log('Update data:', updateData);

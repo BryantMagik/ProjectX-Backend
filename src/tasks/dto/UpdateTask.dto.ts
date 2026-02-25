@@ -1,5 +1,11 @@
 import { Task_priority, TaskStatus, Task_type } from '@prisma/client';
-import { IsEnum, IsOptional, IsString, IsInt, Min, IsDateString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateTaskDto {
   @IsString()
@@ -26,8 +32,13 @@ export class UpdateTaskDto {
   @IsOptional()
   task_type?: Task_type;
 
-
-  @IsDateString({}, { message: 'La fecha de fin debe ser una fecha válida.' })
+  @IsDateString({}, { message: 'La fecha de fin debe ser una fecha valida.' })
   @IsOptional()
   dueTime?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  assignedTo?: string[];
 }
+
