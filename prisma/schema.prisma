@@ -16,7 +16,7 @@ model Workspace {
   creatorId   String?      @default(cuid())
   invitations Invitation[]       @relation("WorkspaceInvitations")
   projects    Project[]          @relation("WorkspaceProjects")
-  creator     User?              @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  creator     User?              @relation("WorkspaceCreator", fields: [creatorId], references: [id], onDelete: SetNull)
   members     WorkspaceMember[]
 }
 
@@ -63,9 +63,9 @@ model Project {
   image        String?
   workspaceId  String
   issues       Issue[]
-  author       User               @relation("ProjectAuthors", fields: [authorId], references: [id])
-  lead         User?              @relation("ProjectLead", fields: [leadId], references: [id])
-  workspace    Workspace          @relation("WorkspaceProjects", fields: [workspaceId], references: [id])
+  author       User               @relation("ProjectAuthors", fields: [authorId], references: [id], onDelete: Cascade)
+  lead         User?              @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
+  workspace    Workspace          @relation("WorkspaceProjects", fields: [workspaceId], references: [id], onDelete: Cascade)
   tasks        Task[]             @relation("ProjectTasks")
   members      ProjectMember[]
 }
@@ -84,8 +84,8 @@ model Task {
   name        String        @unique
   dueTime     DateTime?
   comments    Comment[]     @relation("TaskComments")
-  creator     User          @relation("CreatedTasks", fields: [creatorId], references: [id])
-  project     Project       @relation("ProjectTasks", fields: [projectId], references: [id])
+  creator     User          @relation("CreatedTasks", fields: [creatorId], references: [id], onDelete: Cascade)
+  project     Project       @relation("ProjectTasks", fields: [projectId], references: [id], onDelete: Cascade)
   subtasks    subtask[]     @relation("TaskSubtask")
   users       User[]        @relation("AssignedTasks")
 }
@@ -99,8 +99,8 @@ model subtask {
   creation_date DateTime    @default(now())
   update_date   DateTime    @updatedAt
   authorId      String
-  author        User        @relation("Subtasksauthor", fields: [authorId], references: [id])
-  task          Task        @relation("TaskSubtask", fields: [taskId], references: [id])
+  author        User        @relation("Subtasksauthor", fields: [authorId], references: [id], onDelete: Cascade)
+  task          Task        @relation("TaskSubtask", fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -111,9 +111,9 @@ model Comment {
   taskId    String?
   issueId   String?
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  issue     Issue?   @relation("IssueComments", fields: [issueId], references: [id])
-  task      Task?    @relation("TaskComments", fields: [taskId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  issue     Issue?   @relation("IssueComments", fields: [issueId], references: [id], onDelete: Cascade)
+  task      Task?    @relation("TaskComments", fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model Issue {
@@ -129,8 +129,8 @@ model Issue {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   comments    Comment[]     @relation("IssueComments")
-  project     Project       @relation(fields: [projectId], references: [id])
-  reporter    User          @relation("reporterissue", fields: [reporterId], references: [id])
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reporter    User          @relation("reporterissue", fields: [reporterId], references: [id], onDelete: Cascade)
   assignedTo  User[]        @relation("Assignedto")
 }
 
@@ -145,8 +145,8 @@ model Invitation {
   createdAt   DateTime  @default(now())
   workspaceId String
   authorId    String
-  author      User      @relation("InvitationAuthor", fields: [authorId], references: [id])
-  workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id])
+  author      User      @relation("InvitationAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation("WorkspaceInvitations", fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 model WorkspaceMember {
