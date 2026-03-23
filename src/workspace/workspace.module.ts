@@ -5,12 +5,14 @@ import { UsersModule } from 'src/users/users.module';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
 import { WorkspaceUploadController } from './workspace-upload.controller';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
+    CloudinaryModule,
   ],
   providers: [WorkspaceService],
   controllers: [WorkspaceController, WorkspaceUploadController],

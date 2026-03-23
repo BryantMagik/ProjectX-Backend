@@ -9,19 +9,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { Role_User } from '@prisma/client';
-import { v2 as cloudinary } from 'cloudinary';
-
-// Configuración de Cloudinary TODO: MEJORAR para producción
-cloudinary.config({
-  cloud_name: 'dk5b2zjck',
-  api_key: '646853788926753',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'your-api-secret-here',
-});
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Auth(Role_User.USER)
 @ApiTags('Upload')
 @Controller('upload')
 export class WorkspaceUploadController {
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
+
   @Post('image')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -41,7 +36,6 @@ export class WorkspaceUploadController {
       throw new BadRequestException('No file provided');
     }
 
-    // Validar tipo de archivo
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
@@ -49,36 +43,21 @@ export class WorkspaceUploadController {
       );
     }
 
-    // Validar tamaño (1MB máximo)
     const maxSize = 1 * 1024 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException('File size exceeds 1MB limit.');
     }
 
     try {
-      // Subir a Cloudinary
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'jiro_workspaces',
-            resource_type: 'auto',
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
-
-        uploadStream.end(file.buffer);
-      });
-
-      return {
-        success: true,
-        url: (result as any).secure_url,
-      };
+      const result = await this.cloudinaryService.uploadBuffer(
+        file.buffer,
+        'jiro_workspaces',
+      );
+      return { success: true, url: result.secure_url };
     } catch (error) {
       console.error('Error uploading to Cloudinary:', error);
       throw new BadRequestException('Failed to upload image to Cloudinary');
     }
   }
 }
+
