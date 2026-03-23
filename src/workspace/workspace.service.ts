@@ -104,7 +104,8 @@ export class WorkspaceService {
             user: {
               select: {
                 id: true,
-                name: true,
+                first_name: true,
+                last_name: true,
                 email: true,
               },
             },
