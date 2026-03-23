@@ -92,12 +92,24 @@ export class WorkspaceService {
           },
         ],
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
         members: {
-          include: { user: true },
+          select: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
         },
-        creator: true,
-        projects: true,
       },
     });
   }

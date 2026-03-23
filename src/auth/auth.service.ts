@@ -29,11 +29,8 @@ export class AuthService {
 
     if (userEmail) throw new BadRequestException('Email ya registrado');
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
-
     await this.usersService.createUser({
       ...registerDto,
-      password: hashedPassword,
       role: Role_User.USER,
     });
 
