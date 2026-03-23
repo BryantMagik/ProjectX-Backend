@@ -9,7 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { Role_User } from '@prisma/client';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Auth(Role_User.USER)
 @ApiTags('Upload')
