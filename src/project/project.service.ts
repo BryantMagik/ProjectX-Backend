@@ -145,11 +145,15 @@ export class ProjectService {
             OR: [
               { authorId: user.id },
               { members: { some: { userId: user.id } } },
+              {leadId: user.id},
+              {members:{ some:{userId: user.id,}}},
+              {workspace: { members: { some: { userId: user.id } } }}
             ],
           },
         ],
       },
       include: {
+        workspace: true,
         members: {
           include: { user: true },
         },
