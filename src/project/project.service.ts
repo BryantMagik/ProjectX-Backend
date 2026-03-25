@@ -146,7 +146,6 @@ export class ProjectService {
               { authorId: user.id },
               { members: { some: { userId: user.id } } },
               {leadId: user.id},
-              {members:{ some:{userId: user.id,}}},
               {workspace: { members: { some: { userId: user.id } } }}
             ],
           },

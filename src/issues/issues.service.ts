@@ -80,6 +80,10 @@ export class IssuesService {
             connect: assignedTo.map((userId) => ({ id: userId })),
           },
         },
+        include: {
+          assignedTo: true,
+          reporter: true,
+        }
       });
     } catch (error) {
       throw new BadRequestException('Error al crear el issue' + error.message);
@@ -130,24 +134,29 @@ export class IssuesService {
 
     const issue = await this.prisma.issue.findUnique({
       where: { id },
+      include: {
+        assignedTo: true,
+      },
     });
 
     if (!issue) {
       throw new ForbiddenException('Issue no encontrado');
     }
 
-    if (issue.reporterId !== userId) {
+    const isReporter = issue.reporterId === userId;
+
+    const isAssigned = issue.assignedTo.some((assignedUser) => assignedUser.id === userId);
+
+    if (!isReporter && !isAssigned) {
       throw new ForbiddenException(
-        'No tienes permiso para actualizar este issue',
+        'No tienes permiso para actualizar este issue. No eres el creador ni estás asignado.',
       );
     }
 
     const assignedToUpdate = updateIssueDto.assignedTo
       ? {
           assignedTo: {
-            connect: updateIssueDto.assignedTo.map((assignedToId) => ({
-              id: assignedToId,
-            })),
+            set: updateIssueDto.assignedTo.map((userId) => ({ id: userId })),
           },
         }
       : {};
@@ -209,7 +218,10 @@ export class IssuesService {
 
     const issues = await this.prisma.issue.findMany({
       where: {
-        reporterId: userId,
+        OR: [
+          { reporterId: userId },
+          { assignedTo: { some: { id: userId } } },
+        ],
       },
       include: {
         reporter: true,
