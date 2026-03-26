@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Role_User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TaskDto } from './dto/CreateTask.dto';
 import { UpdateTaskDto } from './dto/UpdateTask.dto';
@@ -243,18 +245,28 @@ export class TasksService {
     return updatedTask;
   }
 
-  async deleteTaskById(name: string, user: UserActiveInterface) {
-    if (!name) throw new Error('Nombre no encontrado');
+  async deleteTaskById(id: string, user: UserActiveInterface) {
+    if (!id) throw new BadRequestException('Id no encontrado');
 
-    return await this.prisma.task.findFirst({
-      where: {
-        name: name,
-      },
-      include: {
-        project: true,
-        creator: true,
-        users: true,
-      },
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Tarea no encontrada');
+    }
+
+    const isAdmin = user.role === Role_User.ADMIN;
+    const isCreator = task.creatorId === user.id;
+
+    if (!isAdmin && !isCreator) {
+      throw new UnauthorizedException(
+        'No tienes permiso para eliminar esta tarea',
+      );
+    }
+
+    return await this.prisma.task.delete({
+      where: { id },
     });
   }
 }

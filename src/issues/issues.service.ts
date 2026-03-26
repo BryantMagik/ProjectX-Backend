@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIssue } from './dto/CreateIssue.dto';
-import { Issue } from '@prisma/client';
+import { Issue, Role_User } from '@prisma/client';
 import { UserActiveInterface } from 'src/auth/interface/user-active.interface';
 
 @Injectable()
@@ -194,7 +194,10 @@ export class IssuesService {
       throw new ForbiddenException('Issue no encontrado');
     }
 
-    if (issue.reporterId !== userId) {
+    const isAdmin = user.role === Role_User.ADMIN;
+    const isReporter = issue.reporterId === userId;
+
+    if (!isAdmin && !isReporter) {
       throw new ForbiddenException(
         'No tienes permiso para eliminar este issue',
       );
