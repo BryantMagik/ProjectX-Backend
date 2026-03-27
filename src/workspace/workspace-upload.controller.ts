@@ -55,7 +55,7 @@ export class WorkspaceUploadController {
       );
       return { success: true, url: result.secure_url };
     } catch (error) {
-      console.error('Error uploading to Cloudinary:', error);
+      console.error('Error uploading to Cloudinary:', JSON.stringify(error));
       throw new BadRequestException('Failed to upload image to Cloudinary');
     }
   }
